@@ -228,12 +228,24 @@ export default function ShortFlow() {
         .cc:hover{border-color:#4F6EF7}
         .ab{margin:12px;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;border:1px dashed #1E2A45;background:none;color:#6B7FA3;font-size:13px;cursor:pointer;width:calc(100% - 24px);font-family:inherit;transition:all .15s}
         .ab:hover{border-color:#4F6EF7;color:#4F6EF7;background:#0D1428}
+        @media(max-width:768px){
+          .sidebar-hide{display:none!important}
+          .main-full{width:100%!important}
+          .content-col{flex-direction:column!important;padding:16px!important}
+          .output-col{width:100%!important;min-width:0!important}
+          .bottom-nav{display:flex!important}
+          .header-pad{padding:0 16px!important}
+        }
+        .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0A0E1A;border-top:1px solid #1A2340;z-index:50}
+        .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;border:none;background:none;color:#6B7FA3;font-size:10px;gap:4px;cursor:pointer;font-family:inherit}
+        .bnav-btn.a{color:#4F6EF7}
+        .bnav-icon{font-size:18px}
       `}</style>
 
       <div style={{ display: "flex", height: "100vh", fontFamily: "'Inter', system-ui, sans-serif", background: "#080B14", color: "#F0F4FF", overflow: "hidden" }}>
 
         {/* SIDEBAR */}
-        <div style={{ width: 230, minWidth: 230, background: "#0A0E1A", borderRight: "1px solid #1A2340", display: "flex", flexDirection: "column", padding: "20px 0" }}>
+        <div className="sidebar-hide" style={{ width: 230, minWidth: 230, background: "#0A0E1A", borderRight: "1px solid #1A2340", display: "flex", flexDirection: "column", padding: "20px 0" }}>
           <div style={{ padding: "0 20px 24px" }}>
             <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.5px" }}>
               Short<span style={{ color: "#4F6EF7" }}>Flow</span>
@@ -269,7 +281,7 @@ export default function ShortFlow() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
           {/* Header */}
-          <div style={{ padding: "0 28px", borderBottom: "1px solid #1A2340", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, flexShrink: 0 }}>
+          <div className="header-pad" style={{ padding: "0 28px", borderBottom: "1px solid #1A2340", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, flexShrink: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 600 }}>
               {view === "generate" && "Generate Package"}
               {view === "clients" && "All Clients"}
@@ -288,7 +300,7 @@ export default function ShortFlow() {
           </div>
 
           {/* Content */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", gap: 24 }}>
+          <div className="content-col" style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", gap: 24, paddingBottom: 80 }}>
 
             {/* GENERATE */}
             {view === "generate" && (
@@ -325,7 +337,7 @@ export default function ShortFlow() {
                   )}
                 </div>
 
-                <div style={{ width: 370, minWidth: 370, overflowY: "auto" }}>
+                <div className="output-col" style={{ width: 370, minWidth: 370, overflowY: "auto" }}>
                   {!shown && !generating && (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
                       <div style={{ fontSize: 38, opacity: 0.35 }}>📦</div>
@@ -407,6 +419,16 @@ export default function ShortFlow() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* BOTTOM NAV - mobile only */}
+        <div className="bottom-nav">
+          {[["generate","⚡","Generate"],["clients","👥","Clients"],["history","📋","History"]].map(([id,icon,label]) => (
+            <button key={id} className={`bnav-btn ${view===id?"a":""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
+              <span className="bnav-icon">{icon}</span>
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* ADD CLIENT MODAL */}
