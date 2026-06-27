@@ -178,10 +178,23 @@ export default function Dashboard() {
     const params = new URLSearchParams(window.location.search);
     const connected = params.get("youtube_connected");
     const ytErr = params.get("youtube_error");
-    if (connected || ytErr) {
+    if (connected) {
       window.history.replaceState({}, "", "/dashboard");
+      setView("performance");
+    }
+    if (ytErr) {
+      window.history.replaceState({}, "", "/dashboard");
+      setYtError(decodeURIComponent(ytErr));
+      setView("performance");
     }
   }, []);
+
+  // Auto-load YouTube stats when performance tab is opened
+  useEffect(() => {
+    if (view === "performance" && !ytStats && !ytLoading && selectedId) {
+      loadYtStats(selectedId);
+    }
+  }, [view, selectedId]);
 
   // Check subscription when session is available
   useEffect(() => {
@@ -578,9 +591,12 @@ export default function Dashboard() {
                   {!ytStats && !ytLoading && !ytError && (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
                       <div style={{ fontSize: 38, opacity: 0.35 }}>📈</div>
-                      <div style={{ fontSize: 14, fontWeight: 600 }}>No YouTube channel connected</div>
-                      <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5, opacity: 0.7 }}>Connect your client's YouTube channel to see performance data for their Shorts</div>
-                      <button onClick={() => handleConnectYoutube(selectedId)} style={{ marginTop: 8, padding: "10px 24px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>No data loaded yet</div>
+                      <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5, opacity: 0.7 }}>If you already connected a channel, click Load Stats. Otherwise connect your client's YouTube channel first.</div>
+                      <button onClick={() => loadYtStats(selectedId)} style={{ marginTop: 8, padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        ↻ Load Stats
+                      </button>
+                      <button onClick={() => handleConnectYoutube(selectedId)} style={{ padding: "10px 24px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                         🎬 Connect YouTube Channel
                       </button>
                     </div>
