@@ -168,6 +168,20 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(null);
   const [historyDetail, setHistoryDetail] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [ytStats, setYtStats] = useState(null);
+  const [ytLoading, setYtLoading] = useState(false);
+  const [ytError, setYtError] = useState(null);
+
+  // Check for YouTube connection callback
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("youtube_connected");
+    const ytErr = params.get("youtube_error");
+    if (connected || ytErr) {
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, []);
 
   // Check subscription when session is available
   useEffect(() => {
@@ -209,6 +223,35 @@ export default function Dashboard() {
   const maxClients = subscription?.maxClients || 2;
   const planName = subscription?.plan || "starter";
   const client = clients.find((c) => c.id === selectedId);
+
+  const loadYtStats = async (cId) => {
+    setYtLoading(true);
+    setYtError(null);
+    try {
+      const res = await fetch(`/api/youtube/stats?clientId=${cId}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setYtStats(data);
+    } catch (err) {
+      setYtError(err.message);
+      setYtStats(null);
+    } finally {
+      setYtLoading(false);
+    }
+  };
+
+  const handleConnectYoutube = (clientId) => {
+    window.location.href = `/api/youtube/connect?clientId=${clientId}`;
+  };
+
+  const handleDisconnectYoutube = async (clientId) => {
+    await fetch("/api/youtube/disconnect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId }),
+    });
+    setYtStats(null);
+  };
 
   const handleGenerate = async () => {
     if (!transcript.trim()) { setError("Paste a transcript first."); return; }
@@ -326,7 +369,7 @@ export default function Dashboard() {
             </div>
 
             <div style={{ padding: "0 12px", marginBottom: 24 }}>
-              {[["generate", "⚡", "Generate"], ["clients", "👥", "Clients"], ["history", "📋", "History"]].map(([id, icon, label]) => (
+              {[["generate", "⚡", "Generate"], ["clients", "👥", "Clients"], ["history", "📋", "History"], ["performance", "📈", "Performance"]].map(([id, icon, label]) => (
                 <button key={id} className={`nb ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
                   <span style={{ width: 18, textAlign: "center" }}>{icon}</span>{label}
                 </button>
@@ -502,6 +545,114 @@ export default function Dashboard() {
               {view === "history" && historyDetail && (
                 <div style={{ width: "100%", maxWidth: 480 }}>
                   <OutputCards output={historyDetail.output} copied={copied} onCopy={copy} />
+                </div>
+              )}
+
+              {/* PERFORMANCE VIEW */}
+              {view === "performance" && (
+                <div style={{ flex: 1, maxWidth: 800 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                    <select className="fi" style={{ maxWidth: 240, cursor: "pointer" }} value={selectedId} onChange={(e) => { setSelectedId(Number(e.target.value)); setYtStats(null); }}>
+                      {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                    {!ytStats && (
+                      <button
+                        onClick={() => handleConnectYoutube(selectedId)}
+                        style={{ padding: "10px 20px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 8 }}
+                      >
+                        🎬 Connect YouTube Channel
+                      </button>
+                    )}
+                    {ytStats && (
+                      <button onClick={() => loadYtStats(selectedId)} style={{ padding: "8px 16px", background: "#111827", border: "1px solid #1A2340", color: "#6B7FA3", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                        ↻ Refresh
+                      </button>
+                    )}
+                    {ytStats && (
+                      <button onClick={() => handleDisconnectYoutube(selectedId)} style={{ padding: "8px 16px", background: "none", border: "1px solid #4A1515", color: "#EF4444", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                        Disconnect
+                      </button>
+                    )}
+                  </div>
+
+                  {!ytStats && !ytLoading && !ytError && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                      <div style={{ fontSize: 38, opacity: 0.35 }}>📈</div>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>No YouTube channel connected</div>
+                      <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5, opacity: 0.7 }}>Connect your client's YouTube channel to see performance data for their Shorts</div>
+                      <button onClick={() => handleConnectYoutube(selectedId)} style={{ marginTop: 8, padding: "10px 24px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        🎬 Connect YouTube Channel
+                      </button>
+                    </div>
+                  )}
+
+                  {ytLoading && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 200, color: "#3A4F70", gap: 12 }}>
+                      <div className="gp" style={{ fontSize: 32 }}>📈</div>
+                      <div style={{ fontSize: 14 }}>Loading performance data...</div>
+                    </div>
+                  )}
+
+                  {ytError && (
+                    <div style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 10, padding: 16, color: "#EF4444", fontSize: 13, marginBottom: 16 }}>
+                      {ytError === "YouTube not connected for this client" ? (
+                        <span>This client's YouTube channel isn't connected yet. Click the button above to connect it.</span>
+                      ) : (
+                        <span>Error: {ytError}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {ytStats && (
+                    <>
+                      {/* Channel header */}
+                      <div style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 12, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 14 }}>
+                        {ytStats.channel.thumb && <img src={ytStats.channel.thumb} width={48} height={48} style={{ borderRadius: "50%" }} alt="" />}
+                        <div>
+                          <div style={{ fontSize: 16, fontWeight: 600 }}>{ytStats.channel.name}</div>
+                          <div style={{ fontSize: 13, color: "#6B7FA3", marginTop: 2 }}>{Number(ytStats.channel.subscribers).toLocaleString()} subscribers</div>
+                        </div>
+                        <div style={{ marginLeft: "auto", fontSize: 11, color: "#3A4F70" }}>
+                          {ytStats.videos.length} recent Shorts
+                        </div>
+                      </div>
+
+                      {/* Top performer highlight */}
+                      {ytStats.videos.length > 0 && (
+                        <div style={{ background: "#0D1525", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: "#4F6EF7", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>🏆 Top Performer</div>
+                          <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                            {ytStats.videos[0].thumbnail && <img src={ytStats.videos[0].thumbnail} width={80} style={{ borderRadius: 6, flexShrink: 0 }} alt="" />}
+                            <div>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: "#C8D4F0", marginBottom: 6, lineHeight: 1.3 }}>{ytStats.videos[0].title}</div>
+                              <div style={{ display: "flex", gap: 16, fontSize: 13 }}>
+                                <span style={{ color: "#F59E0B" }}>👁 {Number(ytStats.videos[0].views).toLocaleString()} views</span>
+                                <span style={{ color: "#10B981" }}>👍 {Number(ytStats.videos[0].likes).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Video list */}
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>All Recent Shorts</div>
+                      {ytStats.videos.map((v, i) => (
+                        <div key={v.id} style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", gap: 12, alignItems: "center" }}>
+                          <div style={{ fontSize: 12, color: "#3A4F70", fontWeight: 700, width: 20, flexShrink: 0 }}>#{i+1}</div>
+                          {v.thumbnail && <img src={v.thumbnail} width={50} style={{ borderRadius: 5, flexShrink: 0 }} alt="" />}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, color: "#C8D4F0", lineHeight: 1.3, marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.title}</div>
+                            <div style={{ display: "flex", gap: 12, fontSize: 12, color: "#6B7FA3" }}>
+                              <span>👁 {Number(v.views).toLocaleString()}</span>
+                              <span>👍 {Number(v.likes).toLocaleString()}</span>
+                              <span>💬 {Number(v.comments).toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ color: "#4F6EF7", fontSize: 11, textDecoration: "none", flexShrink: 0 }}>View →</a>
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
             </div>

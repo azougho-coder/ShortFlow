@@ -21,6 +21,15 @@ const PLANS = [
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
     highlight: true,
   },
+  {
+    name: "Agency",
+    price: "€59.99",
+    per: "/month",
+    description: "For agencies managing many channels",
+    features: ["Unlimited clients", "Everything in Pro", "White-label reports", "Team access", "Dedicated support"],
+    priceId: process.env.NEXT_PUBLIC_STRIPE_AGENCY_PRICE_ID,
+    highlight: false,
+  },
 ];
 
 const FEATURES = [
