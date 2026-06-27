@@ -1,460 +1,230 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
-const RATING = {
-  FIRE: { color: "#F59E0B", bg: "#1C1200", label: "🔥 FIRE" },
-  GOOD: { color: "#10B981", bg: "#021A0D", label: "✅ GOOD" },
-  WEAK: { color: "#EF4444", bg: "#1A0505", label: "⚠️ WEAK" },
-};
-
-function initials(name) {
-  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-}
-
-function CopyBtn({ text, id, copied, onCopy }) {
-  const done = copied === id;
-  return (
-    <button onClick={() => onCopy(text, id)} style={{ background: done ? "#071A12" : "#111827", border: `1px solid ${done ? "#10B981" : "#1A2340"}`, borderRadius: 6, padding: "4px 10px", color: done ? "#10B981" : "#6B7FA3", fontSize: 11, cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit" }}>
-      {done ? "Copied!" : "Copy"}
-    </button>
-  );
-}
-
-function Card({ title, action, children }) {
-  return (
-    <div style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 12, padding: 16, marginBottom: 12 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px" }}>{title}</div>
-        {action}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function OutputCards({ output, copied, onCopy }) {
-  const rating = RATING[output.clipRating] || RATING.GOOD;
-  return (
-    <div>
-      <Card title="Clip Rating" action={<div style={{ padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, color: rating.color, background: rating.bg }}>{rating.label}</div>}>
-        <div style={{ fontSize: 13, color: "#C8D4F0", lineHeight: 1.6 }}>{output.clipAnalysis}</div>
-      </Card>
-
-      <Card title="Opening Hook — First 3 Seconds" action={<CopyBtn text={output.hook} id="hook" copied={copied} onCopy={onCopy} />}>
-        <div style={{ fontSize: 14, color: "#C8D4F0", lineHeight: 1.5, fontStyle: "italic" }}>"{output.hook}"</div>
-      </Card>
-
-      <Card title="Title Options" action={<CopyBtn text={(output.titles || []).join("\n")} id="titles" copied={copied} onCopy={onCopy} />}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-          {(output.titles || []).map((t, i) => (
-            <div key={i} onClick={() => onCopy(t, `t${i}`)} style={{ display: "flex", gap: 10, padding: "9px 12px", background: "#0D1525", borderRadius: 8, border: `1px solid ${copied === `t${i}` ? "#4F6EF7" : "#1A2340"}`, cursor: "pointer", transition: "border-color 0.15s", alignItems: "flex-start" }}>
-              <div style={{ fontSize: 10, color: "#3A4F70", fontWeight: 700, flexShrink: 0, marginTop: 2 }}>0{i + 1}</div>
-              <div style={{ fontSize: 13, color: "#C8D4F0", lineHeight: 1.4 }}>{t}</div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <Card title="Description" action={<CopyBtn text={output.description} id="desc" copied={copied} onCopy={onCopy} />}>
-        <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 130, overflowY: "auto" }}>{output.description}</div>
-      </Card>
-
-      <Card title="Hashtags" action={<CopyBtn text={(output.hashtags || []).map(h => `#${h.replace(/^#/, "")}`).join(" ")} id="tags" copied={copied} onCopy={onCopy} />}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {(output.hashtags || []).map((tag, i) => (
-            <div key={i} style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "4px 10px", fontSize: 12, color: "#4F6EF7" }}>#{tag.replace(/^#/, "")}</div>
-          ))}
-        </div>
-      </Card>
-
-      {output.bestMoment && (
-        <Card title="Best Moment to Highlight">
-          <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.bestMoment}</div>
-        </Card>
-      )}
-
-      {output.postingTip && (
-        <div style={{ background: "#0A0E1A", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#4F6EF7", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>💡 Posting Tip</div>
-          <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.postingTip}</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const DEFAULT_CLIENTS = [
-  { id: 1, name: "Demo Client", niche: "Finance & Entrepreneurship", tone: "Motivational, punchy, direct", notes: "Replace this with your real client" },
+const PLANS = [
+  {
+    name: "Starter",
+    price: "€29",
+    per: "/month",
+    description: "Perfect for getting your first clients",
+    features: ["Up to 3 clients", "Unlimited metadata packages", "Client profiles & history", "Clip rating system", "Copy-ready output"],
+    priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
+    highlight: false,
+  },
+  {
+    name: "Pro",
+    price: "€79",
+    per: "/month",
+    description: "For serious Shorts managers",
+    features: ["Up to 10 clients", "Everything in Starter", "YouTube performance reports", "Priority AI generation", "Email support"],
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
+    highlight: true,
+  },
+  {
+    name: "Agency",
+    price: "€149",
+    per: "/month",
+    description: "For agencies managing many channels",
+    features: ["Unlimited clients", "Everything in Pro", "White-label reports", "Team access", "Dedicated support"],
+    priceId: process.env.NEXT_PUBLIC_STRIPE_AGENCY_PRICE_ID,
+    highlight: false,
+  },
 ];
 
-export default function ShortFlow() {
-  const [clients, setClients] = useState(DEFAULT_CLIENTS);
-  const [selectedId, setSelectedId] = useState(1);
-  const [transcript, setTranscript] = useState("");
-  const [output, setOutput] = useState(null);
-  const [generating, setGenerating] = useState(false);
+const FEATURES = [
+  { icon: "⚡", title: "Full Package in Seconds", desc: "Paste a transcript and get titles, hooks, descriptions, hashtags, and a clip rating instantly. No more manual work." },
+  { icon: "👥", title: "Multi-Client Dashboard", desc: "Manage all your clients in one place. Each client has their own profile, niche, tone, and history saved permanently." },
+  { icon: "📊", title: "Performance Tracking", desc: "The AI learns what works for each client over time. Better data means better packages, means better results." },
+];
+
+export default function Landing() {
+  const router = useRouter();
+  const [loadingPlan, setLoadingPlan] = useState(null);
   const [error, setError] = useState(null);
-  const [view, setView] = useState("generate");
-  const [showModal, setShowModal] = useState(false);
-  const [newClient, setNewClient] = useState({ name: "", niche: "", tone: "", notes: "" });
-  const [history, setHistory] = useState([]);
-  const [copied, setCopied] = useState(null);
-  const [historyDetail, setHistoryDetail] = useState(null);
-  const [mounted, setMounted] = useState(false);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    setMounted(true);
+  const handleCheckout = async (plan) => {
+    if (!plan.priceId) {
+      router.push("/dashboard");
+      return;
+    }
+    setLoadingPlan(plan.name);
+    setError(null);
     try {
-      const savedClients = localStorage.getItem("shortflow-clients");
-      if (savedClients) setClients(JSON.parse(savedClients));
-      const savedHistory = localStorage.getItem("shortflow-history");
-      if (savedHistory) setHistory(JSON.parse(savedHistory));
-    } catch (e) {}
-  }, []);
-
-  // Save clients to localStorage
-  useEffect(() => {
-    if (!mounted) return;
-    try { localStorage.setItem("shortflow-clients", JSON.stringify(clients)); } catch (e) {}
-  }, [clients, mounted]);
-
-  // Save history to localStorage
-  useEffect(() => {
-    if (!mounted) return;
-    try { localStorage.setItem("shortflow-history", JSON.stringify(history)); } catch (e) {}
-  }, [history, mounted]);
-
-  const client = clients.find((c) => c.id === selectedId);
-
-  const handleGenerate = async () => {
-    if (!transcript.trim()) { setError("Paste a transcript first."); return; }
-    if (!client) { setError("Select a client."); return; }
-    setGenerating(true); setError(null); setOutput(null);
-
-    try {
-      const res = await fetch("/api/generate", {
+      const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transcript, client }),
+        body: JSON.stringify({ priceId: plan.priceId }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Generation failed");
-
-      setOutput(data);
-      setHistory((prev) => {
-        const updated = [{
-          id: Date.now(),
-          clientId: selectedId,
-          clientName: client.name,
-          preview: transcript.slice(0, 110) + (transcript.length > 110 ? "..." : ""),
-          output: data,
-          time: new Date().toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }),
-        }, ...prev];
-        return updated;
-      });
+      if (!res.ok) throw new Error(data.error);
+      window.location.href = data.url;
     } catch (err) {
-      setError("Error: " + (err.message || "Unknown error"));
-    } finally {
-      setGenerating(false);
+      setError("Something went wrong. Try again.");
+      setLoadingPlan(null);
     }
   };
-
-  const copy = (text, id) => {
-    navigator.clipboard.writeText(text || "").catch(() => {});
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const addClient = () => {
-    if (!newClient.name.trim() || !newClient.niche.trim()) return;
-    const c = { ...newClient, id: Date.now() };
-    setClients((p) => [...p, c]);
-    setSelectedId(c.id);
-    setNewClient({ name: "", niche: "", tone: "", notes: "" });
-    setShowModal(false);
-    setView("generate");
-  };
-
-  const deleteClient = (id) => {
-    if (clients.length === 1) return;
-    setClients((p) => p.filter((c) => c.id !== id));
-    if (selectedId === id) setSelectedId(clients.find(c => c.id !== id)?.id);
-  };
-
-  const shown = historyDetail ? historyDetail.output : output;
-
-  const avatar = (name) => (
-    <div style={{ width: 28, height: 28, borderRadius: 7, background: "#1E2A5E", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#4F6EF7", flexShrink: 0 }}>
-      {initials(name)}
-    </div>
-  );
 
   return (
     <>
       <Head>
-        <title>ShortFlow — Shorts Manager</title>
+        <title>ShortFlow — The Shorts Manager Dashboard</title>
+        <meta name="description" content="Manage multiple YouTube Shorts clients from one dashboard. Generate full metadata packages instantly." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </Head>
 
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
-        html,body{height:100%;background:#080B14}
-        ::-webkit-scrollbar{width:4px}
-        ::-webkit-scrollbar-track{background:transparent}
-        ::-webkit-scrollbar-thumb{background:#1E2A45;border-radius:2px}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-        .gp{animation:pulse 1.4s ease-in-out infinite}
-        .nb{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#6B7FA3;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;font-family:inherit;transition:all .15s}
-        .nb:hover{background:#111827;color:#F0F4FF}
-        .nb.a{background:#1a2540;color:#F0F4FF}
-        .ci{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#6B7FA3;font-size:13px;transition:all .15s;white-space:nowrap;overflow:hidden}
-        .ci:hover{background:#111827;color:#F0F4FF}
-        .ci.s{background:#1a2540;color:#F0F4FF}
-        .fi{width:100%;background:#080B14;border:1px solid #1A2340;border-radius:8px;padding:10px 14px;color:#F0F4FF;font-size:14px;outline:none;font-family:inherit;transition:border-color .15s}
-        .fi:focus{border-color:#4F6EF7}
-        .fi::placeholder{color:#3A4F70}
-        .gb{width:100%;padding:13px;border-radius:10px;border:none;background:#4F6EF7;color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;letter-spacing:-.2px}
-        .gb:hover:not(:disabled){background:#3D5CE5;transform:translateY(-1px)}
-        .gb:disabled{opacity:.5;cursor:not-allowed;transform:none}
-        .hi{background:#0A0E1A;border:1px solid #1A2340;border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s;margin-bottom:12px}
-        .hi:hover{border-color:#4F6EF7}
-        .cc{background:#0A0E1A;border:1px solid #1A2340;border-radius:12px;padding:20px;cursor:pointer;transition:border-color .15s}
-        .cc:hover{border-color:#4F6EF7}
-        .ab{margin:12px;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;border:1px dashed #1E2A45;background:none;color:#6B7FA3;font-size:13px;cursor:pointer;width:calc(100% - 24px);font-family:inherit;transition:all .15s}
-        .ab:hover{border-color:#4F6EF7;color:#4F6EF7;background:#0D1428}
+        html{scroll-behavior:smooth}
+        body{background:#080B14;font-family:'Inter',system-ui,sans-serif;color:#F0F4FF}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        .float{animation:float 4s ease-in-out infinite}
+        .plan-card{background:#0A0E1A;border:1px solid #1A2340;border-radius:16px;padding:28px;transition:border-color .2s,transform .2s}
+        .plan-card:hover{border-color:#4F6EF7;transform:translateY(-2px)}
+        .plan-card.hl{border-color:#4F6EF7;background:#0D1525}
+        .feat-card{background:#0A0E1A;border:1px solid #1A2340;border-radius:14px;padding:24px;transition:border-color .2s}
+        .feat-card:hover{border-color:#4F6EF7}
+        .cta{padding:14px 32px;background:#4F6EF7;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+        .cta:hover:not(:disabled){background:#3D5CE5;transform:translateY(-1px)}
+        .cta:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .cta.ol{background:none;border:1px solid #1E2A45;color:#6B7FA3}
+        .cta.ol:hover{border-color:#4F6EF7;color:#F0F4FF;transform:none}
         @media(max-width:768px){
-          .sidebar-hide{display:none!important}
-          .main-full{width:100%!important}
-          .content-col{flex-direction:column!important;padding:16px!important}
-          .output-col{width:100%!important;min-width:0!important}
-          .bottom-nav{display:flex!important}
-          .header-pad{padding:0 16px!important}
+          .hero-h1{font-size:34px!important;letter-spacing:-.5px!important}
+          .plans-g{grid-template-columns:1fr!important}
+          .feats-g{grid-template-columns:1fr!important}
+          .nl{display:none!important}
+          .hp{padding:100px 20px 60px!important}
+          .sp{padding:60px 20px!important}
         }
-        .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0A0E1A;border-top:1px solid #1A2340;z-index:50}
-        .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;border:none;background:none;color:#6B7FA3;font-size:10px;gap:4px;cursor:pointer;font-family:inherit}
-        .bnav-btn.a{color:#4F6EF7}
-        .bnav-icon{font-size:18px}
       `}</style>
 
-      <div style={{ display: "flex", height: "100vh", fontFamily: "'Inter', system-ui, sans-serif", background: "#080B14", color: "#F0F4FF", overflow: "hidden" }}>
+      {/* NAV */}
+      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:100,background:"rgba(8,11,20,.92)",backdropFilter:"blur(12px)",borderBottom:"1px solid #1A2340",padding:"0 40px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{fontSize:18,fontWeight:700,letterSpacing:"-.5px"}}>Short<span style={{color:"#4F6EF7"}}>Flow</span></div>
+        <div className="nl" style={{display:"flex",gap:28,alignItems:"center"}}>
+          <a href="#features" style={{color:"#6B7FA3",fontSize:14,textDecoration:"none"}}>Features</a>
+          <a href="#pricing" style={{color:"#6B7FA3",fontSize:14,textDecoration:"none"}}>Pricing</a>
+          <button onClick={()=>router.push("/dashboard")} className="cta" style={{padding:"8px 20px",fontSize:14}}>Open App</button>
+        </div>
+      </nav>
 
-        {/* SIDEBAR */}
-        <div className="sidebar-hide" style={{ width: 230, minWidth: 230, background: "#0A0E1A", borderRight: "1px solid #1A2340", display: "flex", flexDirection: "column", padding: "20px 0" }}>
-          <div style={{ padding: "0 20px 24px" }}>
-            <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.5px" }}>
-              Short<span style={{ color: "#4F6EF7" }}>Flow</span>
-            </div>
-            <div style={{ fontSize: 11, color: "#3A4F70", marginTop: 3, letterSpacing: "0.5px" }}>Shorts Manager</div>
-          </div>
-
-          <div style={{ padding: "0 12px", marginBottom: 24 }}>
-            {[["generate", "⚡", "Generate"], ["clients", "👥", "Clients"], ["history", "📋", "History"]].map(([id, icon, label]) => (
-              <button key={id} className={`nb ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
-                <span style={{ width: 18, textAlign: "center" }}>{icon}</span>{label}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ padding: "0 20px", fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 8 }}>Clients</div>
-
-          <div style={{ flex: 1, overflowY: "auto", padding: "0 12px" }}>
-            {clients.map((c) => (
-              <div key={c.id} className={`ci ${selectedId === c.id ? "s" : ""}`} onClick={() => { setSelectedId(c.id); setView("generate"); setHistoryDetail(null); setOutput(null); }}>
-                {avatar(c.name)}
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>{c.name}</span>
-              </div>
-            ))}
-          </div>
-
-          <button className="ab" onClick={() => setShowModal(true)}>
-            <span>＋</span> Add Client
-          </button>
+      {/* HERO */}
+      <section className="hp" style={{padding:"140px 40px 100px",maxWidth:900,margin:"0 auto",textAlign:"center"}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"#0D1525",border:"1px solid #1E2A5E",borderRadius:20,padding:"6px 16px",fontSize:12,color:"#4F6EF7",fontWeight:600,marginBottom:28,letterSpacing:".5px"}}>
+          ⚡ BUILT BY A SHORTS MANAGER, FOR SHORTS MANAGERS
+        </div>
+        <h1 className="hero-h1" style={{fontSize:54,fontWeight:800,lineHeight:1.1,letterSpacing:"-1.5px",marginBottom:24}}>
+          Manage every client.<br/>
+          <span style={{color:"#4F6EF7"}}>Generate every package.</span><br/>
+          In one place.
+        </h1>
+        <p style={{fontSize:18,color:"#6B7FA3",lineHeight:1.7,maxWidth:560,margin:"0 auto 40px"}}>
+          Stop switching tabs and starting from scratch. ShortFlow turns any transcript into a complete metadata package in seconds — for every client you manage.
+        </p>
+        <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
+          <a href="#pricing"><button className="cta">Get Started →</button></a>
+          <button className="cta ol" onClick={()=>router.push("/dashboard")}>Try the App Free</button>
         </div>
 
-        {/* MAIN */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-
-          {/* Header */}
-          <div className="header-pad" style={{ padding: "0 28px", borderBottom: "1px solid #1A2340", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, flexShrink: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 600 }}>
-              {view === "generate" && "Generate Package"}
-              {view === "clients" && "All Clients"}
-              {view === "history" && (historyDetail ? "Past Result" : "History")}
-            </div>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              {view === "generate" && client && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#0F1629", border: "1px solid #1E2A45", padding: "6px 14px", borderRadius: 20, fontSize: 13, color: "#6B7FA3" }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981" }} />{client.name}
-                </div>
-              )}
-              {historyDetail && (
-                <button onClick={() => setHistoryDetail(null)} style={{ background: "#111827", border: "1px solid #1A2340", borderRadius: 6, padding: "5px 12px", color: "#6B7FA3", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>← Back</button>
-              )}
+        {/* HERO CARD */}
+        <div className="float" style={{marginTop:64,background:"#0A0E1A",border:"1px solid #1E2A45",borderRadius:16,padding:24,textAlign:"left",maxWidth:560,margin:"64px auto 0"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+            <div style={{width:10,height:10,borderRadius:"50%",background:"#EF4444"}}/><div style={{width:10,height:10,borderRadius:"50%",background:"#F59E0B"}}/><div style={{width:10,height:10,borderRadius:"50%",background:"#10B981"}}/>
+            <div style={{flex:1,background:"#111827",borderRadius:4,height:22,marginLeft:8,display:"flex",alignItems:"center",paddingLeft:10}}>
+              <div style={{fontSize:11,color:"#3A4F70"}}>shortflow.app/dashboard</div>
             </div>
           </div>
-
-          {/* Content */}
-          <div className="content-col" style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", gap: 24, paddingBottom: 80 }}>
-
-            {/* GENERATE */}
-            {view === "generate" && (
-              <>
-                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Client</div>
-                    <select className="fi" value={selectedId} onChange={(e) => setSelectedId(Number(e.target.value))} style={{ cursor: "pointer" }}>
-                      {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                  </div>
-
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Transcript</div>
-                    <textarea className="fi" style={{ width: "100%", minHeight: 220, resize: "vertical", lineHeight: 1.65 }} value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder="Paste the clip transcript here..." />
-                  </div>
-
-                  {error && <div style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 8, padding: "11px 16px", color: "#EF4444", fontSize: 13 }}>{error}</div>}
-
-                  <button className="gb" onClick={handleGenerate} disabled={generating}>
-                    {generating ? <span className="gp">Generating package...</span> : "⚡  Generate Full Package"}
-                  </button>
-
-                  {client && (
-                    <div style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 12, padding: 16 }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>Client Profile</div>
-                      {[["Niche", client.niche], ["Tone", client.tone], client.notes ? ["Notes", client.notes] : null].filter(Boolean).map(([k, v]) => (
-                        <div key={k} style={{ display: "flex", gap: 12, marginBottom: 6, fontSize: 13 }}>
-                          <span style={{ color: "#3A4F70", minWidth: 44, flexShrink: 0 }}>{k}</span>
-                          <span style={{ color: "#8B9DC0" }}>{v}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="output-col" style={{ width: 370, minWidth: 370, overflowY: "auto" }}>
-                  {!shown && !generating && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
-                      <div style={{ fontSize: 38, opacity: 0.35 }}>📦</div>
-                      <div style={{ fontSize: 14, fontWeight: 600 }}>No package yet</div>
-                      <div style={{ fontSize: 13, maxWidth: 210, lineHeight: 1.5, opacity: 0.7 }}>Paste a transcript and hit generate to get your full metadata package</div>
-                    </div>
-                  )}
-                  {generating && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
-                      <div className="gp" style={{ fontSize: 38 }}>⚡</div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "#4F6EF7" }}>Generating...</div>
-                      <div style={{ fontSize: 13, maxWidth: 200, lineHeight: 1.5, opacity: 0.7 }}>Analyzing transcript and building your package</div>
-                    </div>
-                  )}
-                  {shown && !generating && <OutputCards output={shown} copied={copied} onCopy={copy} />}
-                </div>
-              </>
-            )}
-
-            {/* CLIENTS */}
-            {view === "clients" && (
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: 14 }}>
-                  {clients.map((c) => (
-                    <div key={c.id} className="cc" onClick={() => { setSelectedId(c.id); setView("generate"); }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                        <div style={{ width: 42, height: 42, borderRadius: 10, background: "#1E2A5E", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#4F6EF7", flexShrink: 0 }}>{initials(c.name)}</div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 2 }}>{c.name}</div>
-                          <div style={{ fontSize: 12, color: "#6B7FA3", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.niche}</div>
-                        </div>
-                        {clients.length > 1 && (
-                          <button onClick={(e) => { e.stopPropagation(); deleteClient(c.id); }} style={{ background: "none", border: "none", color: "#3A4F70", cursor: "pointer", fontSize: 16, padding: "0 4px" }}>×</button>
-                        )}
-                      </div>
-                      <div style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#4F6EF7", display: "inline-block" }}>
-                        {c.tone.split(",")[0].trim()}
-                      </div>
-                    </div>
-                  ))}
-                  <div style={{ background: "#0A0E1A", border: "1px dashed #1E2A45", borderRadius: 12, padding: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#3A4F70", gap: 8, flexDirection: "column", minHeight: 110 }} onClick={() => setShowModal(true)}>
-                    <div style={{ fontSize: 22 }}>＋</div>
-                    <div style={{ fontSize: 13 }}>Add New Client</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* HISTORY LIST */}
-            {view === "history" && !historyDetail && (
-              <div style={{ flex: 1, maxWidth: 680 }}>
-                {history.length === 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 240, color: "#3A4F70", textAlign: "center", gap: 12 }}>
-                    <div style={{ fontSize: 36, opacity: 0.35 }}>📋</div>
-                    <div style={{ fontSize: 14, fontWeight: 600 }}>No history yet</div>
-                    <div style={{ fontSize: 13, opacity: 0.7 }}>Generated packages will appear here</div>
-                  </div>
-                ) : history.map((h) => (
-                  <div key={h.id} className="hi" onClick={() => setHistoryDetail(h)}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                      {avatar(h.clientName)}
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{h.clientName}</span>
-                      <span style={{ fontSize: 12, color: "#3A4F70" }}>· {h.time}</span>
-                      {h.output.clipRating && (
-                        <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: RATING[h.output.clipRating]?.color }}>{RATING[h.output.clipRating]?.label}</span>
-                      )}
-                    </div>
-                    <div style={{ fontSize: 13, color: "#6B7FA3", lineHeight: 1.4, marginBottom: h.output.titles?.[0] ? 8 : 0 }}>{h.preview}</div>
-                    {h.output.titles?.[0] && <div style={{ fontSize: 14, color: "#C8D4F0", fontWeight: 500 }}>{h.output.titles[0]}</div>}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* HISTORY DETAIL */}
-            {view === "history" && historyDetail && (
-              <div style={{ width: "100%", maxWidth: 480 }}>
-                <OutputCards output={historyDetail.output} copied={copied} onCopy={copy} />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* BOTTOM NAV - mobile only */}
-        <div className="bottom-nav">
-          {[["generate","⚡","Generate"],["clients","👥","Clients"],["history","📋","History"]].map(([id,icon,label]) => (
-            <button key={id} className={`bnav-btn ${view===id?"a":""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
-              <span className="bnav-icon">{icon}</span>
-              {label}
-            </button>
+          {[
+            {label:"Clip Rating",content:<span style={{background:"#1C1200",color:"#F59E0B",fontWeight:700,padding:"2px 10px",borderRadius:4,fontSize:13}}>🔥 FIRE</span>},
+            {label:"Opening Hook",content:<span style={{fontSize:13,color:"#C8D4F0",fontStyle:"italic"}}>"The Federal Reserve just made a decision that will affect every person on earth."</span>},
+            {label:"Top Title",content:<span style={{fontSize:13,color:"#C8D4F0"}}>The Decision That Will Crash 90 Countries' Economies</span>},
+          ].map((item,i)=>(
+            <div key={i} style={{background:"#0D1525",border:"1px solid #1A2340",borderRadius:10,padding:"12px 14px",marginBottom:i<2?8:0}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#3A4F70",textTransform:"uppercase",letterSpacing:"1px",marginBottom:6}}>{item.label}</div>
+              {item.content}
+            </div>
           ))}
         </div>
+      </section>
 
-        {/* ADD CLIENT MODAL */}
-        {showModal && (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.78)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }} onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
-            <div style={{ background: "#0F1629", border: "1px solid #1E2A45", borderRadius: 16, padding: 28, width: 440, maxWidth: "90vw" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Add New Client</div>
-              {[
-                { k: "name", l: "Client Name *", p: "e.g. The Diary of a CEO" },
-                { k: "niche", l: "Niche *", p: "e.g. Business & Self-improvement" },
-                { k: "tone", l: "Tone & Style", p: "e.g. Storytelling, emotional, thought-provoking" },
-                { k: "notes", l: "Notes", p: "e.g. Audience 25-40, responds well to vulnerability" },
-              ].map(({ k, l, p }) => (
-                <div key={k} style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "#6B7FA3", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{l}</div>
-                  <input className="fi" placeholder={p} value={newClient[k]} onChange={(e) => setNewClient((prev) => ({ ...prev, [k]: e.target.value }))} />
-                </div>
-              ))}
-              <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-                <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid #1E2A45", background: "none", color: "#6B7FA3", fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
-                <button onClick={addClient} style={{ flex: 1, padding: 10, borderRadius: 8, border: "none", background: "#4F6EF7", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Add Client</button>
-              </div>
+      {/* FEATURES */}
+      <section id="features" className="sp" style={{padding:"80px 40px",maxWidth:1000,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:48}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#4F6EF7",textTransform:"uppercase",letterSpacing:"1.5px",marginBottom:12}}>Features</div>
+          <h2 style={{fontSize:34,fontWeight:700,letterSpacing:"-.8px"}}>Everything you need to scale</h2>
+        </div>
+        <div className="feats-g" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+          {FEATURES.map((f,i)=>(
+            <div key={i} className="feat-card">
+              <div style={{fontSize:28,marginBottom:14}}>{f.icon}</div>
+              <div style={{fontSize:16,fontWeight:600,marginBottom:8}}>{f.title}</div>
+              <div style={{fontSize:14,color:"#6B7FA3",lineHeight:1.6}}>{f.desc}</div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* SOCIAL PROOF */}
+      <section style={{padding:"0 40px 80px",maxWidth:700,margin:"0 auto",textAlign:"center"}}>
+        <div style={{background:"#0A0E1A",border:"1px solid #1E2A5E",borderRadius:16,padding:32}}>
+          <div style={{fontSize:17,color:"#C8D4F0",lineHeight:1.7,fontStyle:"italic",marginBottom:20}}>
+            "I used to spend 2 hours per client doing metadata manually. ShortFlow cut that down to minutes. I took on 3 more clients the same week."
           </div>
-        )}
-      </div>
+          <div style={{fontSize:13,color:"#6B7FA3"}}>— Shorts Manager, 6 clients</div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className="sp" style={{padding:"80px 40px",maxWidth:1000,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:48}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#4F6EF7",textTransform:"uppercase",letterSpacing:"1.5px",marginBottom:12}}>Pricing</div>
+          <h2 style={{fontSize:34,fontWeight:700,letterSpacing:"-.8px",marginBottom:12}}>Simple, transparent pricing</h2>
+          <p style={{fontSize:15,color:"#6B7FA3"}}>Cancel anytime. No hidden fees.</p>
+        </div>
+        {error&&<div style={{textAlign:"center",color:"#EF4444",marginBottom:24,fontSize:14}}>{error}</div>}
+        <div className="plans-g" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+          {PLANS.map((plan)=>(
+            <div key={plan.name} className={`plan-card ${plan.highlight?"hl":""}`}>
+              {plan.highlight&&<div style={{display:"inline-block",background:"#4F6EF7",color:"#fff",fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,marginBottom:16}}>MOST POPULAR</div>}
+              <div style={{fontSize:18,fontWeight:700,marginBottom:4}}>{plan.name}</div>
+              <div style={{fontSize:13,color:"#6B7FA3",marginBottom:20}}>{plan.description}</div>
+              <div style={{display:"flex",alignItems:"baseline",gap:4,marginBottom:24}}>
+                <div style={{fontSize:40,fontWeight:800,letterSpacing:"-1px"}}>{plan.price}</div>
+                <div style={{fontSize:14,color:"#6B7FA3"}}>{plan.per}</div>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:28}}>
+                {plan.features.map((f,i)=>(
+                  <div key={i} style={{fontSize:14,color:"#8B9DC0"}}><span style={{color:"#4F6EF7",marginRight:10,fontWeight:700}}>✓</span>{f}</div>
+                ))}
+              </div>
+              <button
+                className="cta"
+                style={{width:"100%",padding:"12px",fontSize:15,background:plan.highlight?"#4F6EF7":"none",border:plan.highlight?"none":"1px solid #1E2A45",color:plan.highlight?"#fff":"#6B7FA3"}}
+                onClick={()=>handleCheckout(plan)}
+                disabled={loadingPlan===plan.name}
+              >
+                {loadingPlan===plan.name?"Loading...":`Get ${plan.name} →`}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section style={{padding:"0 40px 100px",maxWidth:700,margin:"0 auto",textAlign:"center"}}>
+        <h2 style={{fontSize:34,fontWeight:700,letterSpacing:"-.8px",marginBottom:16}}>Ready to manage Shorts like a pro?</h2>
+        <p style={{fontSize:16,color:"#6B7FA3",marginBottom:32}}>Join Shorts managers already using ShortFlow to save hours every week.</p>
+        <a href="#pricing"><button className="cta">Get Started Today →</button></a>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{borderTop:"1px solid #1A2340",padding:"24px 40px",textAlign:"center"}}>
+        <div style={{fontSize:14,color:"#3A4F70"}}>Short<span style={{color:"#4F6EF7"}}>Flow</span> — Built for Shorts managers</div>
+      </footer>
     </>
   );
 }
