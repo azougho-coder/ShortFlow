@@ -1,6 +1,8 @@
 export default async function handler(req, res) {
   const { code, state, error } = req.query;
 
+  console.log("YouTube callback hit:", { code: !!code, state, error });
+
   if (error) {
     return res.redirect(`/dashboard?youtube_error=${error}`);
   }
@@ -17,6 +19,7 @@ export default async function handler(req, res) {
   }
 
   const { clientId, userEmail } = parsedState;
+  console.log("Parsed state:", { clientId, userEmail });
 
   try {
     // Exchange code for tokens
@@ -33,9 +36,10 @@ export default async function handler(req, res) {
     });
 
     const tokens = await tokenRes.json();
+    console.log("Token response:", { hasAccess: !!tokens.access_token, hasRefresh: !!tokens.refresh_token, error: tokens.error });
 
     if (!tokens.access_token) {
-      return res.redirect("/dashboard?youtube_error=no_token");
+      return res.redirect(`/dashboard?youtube_error=${encodeURIComponent("no_token: " + (tokens.error || "unknown"))}`);
     }
 
     // Get channel info
@@ -45,10 +49,12 @@ export default async function handler(req, res) {
     );
 
     const channelData = await channelRes.json();
+    console.log("Channel data:", { items: channelData.items?.length, error: channelData.error });
+
     const channel = channelData.items?.[0];
 
     if (!channel) {
-      return res.redirect("/dashboard?youtube_error=no_channel");
+      return res.redirect(`/dashboard?youtube_error=${encodeURIComponent("no_channel: " + JSON.stringify(channelData.error || "unknown"))}`);
     }
 
     const ytData = {
@@ -61,9 +67,13 @@ export default async function handler(req, res) {
       connectedAt: new Date().toISOString(),
     };
 
+    console.log("Saving to KV:", { key: `yt:${userEmail}:${clientId}`, channelName: ytData.channelName });
+
     // Store in KV
     const { kv } = await import("@vercel/kv");
     await kv.set(`yt:${userEmail}:${clientId}`, JSON.stringify(ytData));
+
+    console.log("KV save successful");
 
     return res.redirect(`/dashboard?youtube_connected=${clientId}&channel=${encodeURIComponent(channel.snippet.title)}`);
   } catch (err) {
