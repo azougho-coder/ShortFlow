@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 const PLANS = [
   {
     name: "Starter",
-    price: "€29",
+    price: "€19.99",
     per: "/month",
     description: "Perfect for getting your first clients",
     features: ["Up to 3 clients", "Unlimited metadata packages", "Client profiles & history", "Clip rating system", "Copy-ready output"],
@@ -14,7 +14,7 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: "€79",
+    price: "€39.99",
     per: "/month",
     description: "For serious Shorts managers",
     features: ["Up to 10 clients", "Everything in Starter", "YouTube performance reports", "Priority AI generation", "Email support"],
@@ -23,7 +23,7 @@ const PLANS = [
   },
   {
     name: "Agency",
-    price: "€149",
+    price: "€79.99",
     per: "/month",
     description: "For agencies managing many channels",
     features: ["Unlimited clients", "Everything in Pro", "White-label reports", "Team access", "Dedicated support"],
