@@ -21,6 +21,15 @@ const PLANS = [
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
     highlight: true,
   },
+  {
+    name: "Agency",
+    price: "€59.99",
+    per: "/month",
+    description: "For agencies managing many channels",
+    features: ["Unlimited clients", "Everything in Pro", "White-label reports", "Team access", "Dedicated support"],
+    priceId: process.env.NEXT_PUBLIC_STRIPE_AGENCY_PRICE_ID,
+    highlight: false,
+  },
 ];
 
 const FEATURES = [
@@ -177,7 +186,7 @@ export default function Landing() {
           <p style={{fontSize:15,color:"#6B7FA3"}}>Cancel anytime. No hidden fees.</p>
         </div>
         {error&&<div style={{textAlign:"center",color:"#EF4444",marginBottom:24,fontSize:14}}>{error}</div>}
-        <div className="plans-g" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+        <div className="plans-g" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:16,maxWidth:700,margin:"0 auto"}}>
           {PLANS.map((plan)=>(
             <div key={plan.name} className={`plan-card ${plan.highlight?"hl":""}`}>
               {plan.highlight&&<div style={{display:"inline-block",background:"#4F6EF7",color:"#fff",fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,marginBottom:16}}>MOST POPULAR</div>}
