@@ -21,6 +21,15 @@ const PLANS = [
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
     highlight: true,
   },
+  {
+    name: "Agency",
+    price: "€59.99",
+    per: "/month",
+    description: "For agencies managing many channels",
+    features: ["Unlimited clients", "Everything in Pro", "White-label reports", "Team access", "Dedicated support"],
+    priceId: process.env.NEXT_PUBLIC_STRIPE_AGENCY_PRICE_ID,
+    highlight: false,
+  },
 ];
 
 const FEATURES = [
@@ -63,6 +72,7 @@ export default function Landing() {
         <meta name="description" content="Manage multiple YouTube Shorts clients from one dashboard. Generate full metadata packages instantly." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="google-site-verification" content="oYgw8E0iULV2UuWMVlW7DF72Cg4PEea4Z0Dr6bM78aY" />
+        <meta name="google-site-verification" content="Rq__ln7OuI7f8Ng7R_aQFvqHGYIHn1Exvl6ZcCGkVuo" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
