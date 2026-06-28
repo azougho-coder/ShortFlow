@@ -223,7 +223,7 @@ export default function Landing() {
 
       {/* FOOTER */}
       <footer style={{borderTop:"1px solid #1A2340",padding:"24px 40px",textAlign:"center"}}>
-        <div style={{fontSize:14,color:"#3A4F70"}}>Short<span style={{color:"#4F6EF7"}}>Flow</span> — Built for Shorts managers</div>
+        <div style={{fontSize:14,color:"#3A4F70"}}>Short<span style={{color:"#4F6EF7"}}>Flow</span> — Built for Shorts managers &nbsp;·&nbsp; <a href="/privacy" style={{color:"#3A4F70",textDecoration:"none"}}>Privacy Policy</a></div>
       </footer>
     </>
   );
