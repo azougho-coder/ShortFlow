@@ -49,6 +49,11 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "YouTube not connected for this client. Please connect your YouTube channel first." });
     }
 
+    // Append hashtags to description for YouTube
+    const cleanTags = (tags || []).map(t => t.replace(/^#/, "")).filter(Boolean).slice(0, 15);
+    const hashtagLine = cleanTags.map(t => `#${t}`).join(" ");
+    const fullDescription = (description || "") + (hashtagLine ? "\n\n" + hashtagLine : "");
+
     // Initiate resumable upload session
     const uploadRes = await fetch(
       "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
@@ -62,8 +67,8 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           snippet: {
             title: title.slice(0, 100),
-            description: description || "",
-            tags: (tags || []).map(t => t.replace(/^#/, "")).slice(0, 15),
+            description: fullDescription,
+            tags: cleanTags,
             categoryId: "25",
             defaultLanguage: "en",
           },

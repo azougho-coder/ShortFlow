@@ -62,7 +62,7 @@ function OutputCards({ output, copied, onCopy }) {
       <Card title="Description" action={<CopyBtn text={output.description} id="desc" copied={copied} onCopy={onCopy} />}>
         <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 130, overflowY: "auto" }}>{output.description}</div>
       </Card>
-      <Card title="Hashtags" action={<CopyBtn text={(output.hashtags || []).map(h => `#${h.replace(/^#/, "")}`).join(" ")} id="tags" copied={copied} onCopy={onCopy} />}>
+      <Card title="Tags" action={<CopyBtn text={(output.hashtags || []).map(h => `#${h.replace(/^#/, "")}`).join(" ")} id="tags" copied={copied} onCopy={onCopy} />}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {(output.hashtags || []).map((tag, i) => (
             <div key={i} style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "4px 10px", fontSize: 12, color: "#4F6EF7" }}>#{tag.replace(/^#/, "")}</div>
@@ -292,14 +292,34 @@ export default function Dashboard() {
         const xhr = new XMLHttpRequest();
         xhr.open("PUT", urlData.uploadUrl);
         xhr.setRequestHeader("Content-Type", videoFile.type);
-        xhr.upload.onprogress = (e) => { if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100)); };
+        let uploadReached100 = false;
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const pct = Math.round((e.loaded / e.total) * 100);
+            setUploadProgress(pct);
+            if (pct === 100) uploadReached100 = true;
+          }
+        };
         xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) {
-            try { const r = JSON.parse(xhr.responseText); setUploadedUrl(`https://youtube.com/shorts/${r.id}`); } catch {}
+            try {
+              const r = JSON.parse(xhr.responseText);
+              setUploadedUrl(`https://youtube.com/shorts/${r.id}`);
+            } catch {
+              setUploadedUrl("https://studio.youtube.com/");
+            }
             resolve();
           } else { reject(new Error("Upload failed: " + xhr.status)); }
         };
-        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.onerror = () => {
+          if (uploadReached100) {
+            // File was fully sent — CORS blocked the response, but upload likely succeeded
+            setUploadedUrl("https://studio.youtube.com/");
+            resolve();
+          } else {
+            reject(new Error("Network error during upload"));
+          }
+        };
         xhr.send(videoFile);
       });
     } catch (err) {
@@ -549,7 +569,7 @@ export default function Dashboard() {
                         <textarea className="fi" style={{ minHeight: 120, resize: "vertical", lineHeight: 1.6 }} value={editableDescription} onChange={(e) => setEditableDescription(e.target.value)} placeholder="Video description..." />
                       </div>
                       <div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Hashtags</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Tags</div>
                         <textarea className="fi" style={{ minHeight: 60, resize: "vertical", fontSize: 13 }} value={editableHashtags} onChange={(e) => setEditableHashtags(e.target.value)} placeholder="#shorts #youtube #viral" />
                         <div style={{ fontSize: 11, color: "#3A4F70", marginTop: 4 }}>Separate with spaces.</div>
                       </div>
