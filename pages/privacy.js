@@ -103,7 +103,7 @@ To exercise any of these rights, contact us at the email below.`
           },
           {
             title: "10. Contact Us",
-            content: `If you have any questions about this Privacy Policy or our data practices, please contact us at:\n\nShortFlow\nEmail: support@short-flow.vercel.app`
+            content: `If you have any questions about this Privacy Policy or our data practices, please contact us at:\n\nShortFlow\nEmail: azougho@gmail.com`
           }
         ].map(({ title, content }) => (
           <div key={title} style={{ marginBottom: 36 }}>
