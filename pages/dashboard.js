@@ -37,6 +37,12 @@ function OutputCards({ output, copied, onCopy }) {
   const rating = RATING[output.clipRating] || RATING.GOOD;
   return (
     <div>
+      {output.performanceInsight && (
+        <div style={{ background: "#071A0D", border: "1px solid #1C3A1C", borderRadius: 12, padding: 16, marginBottom: 12 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#10B981", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>📈 AI Learned From Your Channel</div>
+          <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.performanceInsight}</div>
+        </div>
+      )}
       <Card title="Clip Rating" action={<div style={{ padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, color: rating.color, background: rating.bg }}>{rating.label}</div>}>
         <div style={{ fontSize: 13, color: "#C8D4F0", lineHeight: 1.6 }}>{output.clipAnalysis}</div>
       </Card>
@@ -74,12 +80,7 @@ function OutputCards({ output, copied, onCopy }) {
           <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.postingTip}</div>
         </div>
       )}
-      {output.performanceInsight && (
-        <div style={{ background: "#0A0E1A", border: "1px solid #1C2A1C", borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#10B981", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>📈 AI Learned From Your Channel</div>
-          <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.performanceInsight}</div>
-        </div>
-      )}
+
     </div>
   );
 }
@@ -521,7 +522,7 @@ export default function Dashboard() {
                             <div style={{ fontSize: 12, color: "#6B7FA3", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.niche}</div>
                           </div>
                           {clients.length > 1 && (
-                            <button onClick={(e) => { e.stopPropagation(); deleteClient(c.id); }} style={{ background: "none", border: "none", color: "#3A4F70", cursor: "pointer", fontSize: 16, padding: "0 4px" }}>×</button>
+                            <button onClick={(e) => { e.stopPropagation(); if(window.confirm("Remove " + c.name + "?")) deleteClient(c.id); }} style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 6, color: "#EF4444", cursor: "pointer", fontSize: 12, padding: "3px 8px", fontFamily: "inherit" }}>Remove</button>
                           )}
                         </div>
                         <div style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#4F6EF7", display: "inline-block" }}>{c.tone.split(",")[0].trim()}</div>
