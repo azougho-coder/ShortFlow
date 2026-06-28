@@ -69,9 +69,15 @@ function OutputCards({ output, copied, onCopy }) {
         </Card>
       )}
       {output.postingTip && (
-        <div style={{ background: "#0A0E1A", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16 }}>
+        <div style={{ background: "#0A0E1A", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16, marginBottom: 12 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: "#4F6EF7", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>💡 Posting Tip</div>
           <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.postingTip}</div>
+        </div>
+      )}
+      {output.performanceInsight && (
+        <div style={{ background: "#0A0E1A", border: "1px solid #1C2A1C", borderRadius: 12, padding: 16 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#10B981", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>📈 AI Learned From Your Channel</div>
+          <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.performanceInsight}</div>
         </div>
       )}
     </div>
@@ -275,7 +281,7 @@ export default function Dashboard() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transcript, client }),
+        body: JSON.stringify({ transcript, client, userEmail: session?.user?.email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
@@ -562,7 +568,19 @@ export default function Dashboard() {
               )}
 
               {/* PERFORMANCE VIEW */}
-              {view === "performance" && (
+              {view === "performance" && planName === "starter" && (
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                  <div style={{ fontSize: 38, opacity: 0.35 }}>🔒</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: "#F0F4FF" }}>Pro Feature</div>
+                  <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5 }}>YouTube performance reports are available on the Pro plan. Upgrade to connect channels and track what's working.</div>
+                  <a href="/#pricing" style={{ marginTop: 8 }}>
+                    <button style={{ padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                      Upgrade to Pro →
+                    </button>
+                  </a>
+                </div>
+              )}
+              {view === "performance" && planName !== "starter" && (
                 <div style={{ flex: 1, maxWidth: 800 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                     <select className="fi" style={{ maxWidth: 240, cursor: "pointer" }} value={selectedId} onChange={(e) => { setSelectedId(Number(e.target.value)); setYtStats(null); }}>
