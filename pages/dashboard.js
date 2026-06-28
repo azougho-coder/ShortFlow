@@ -178,6 +178,14 @@ export default function Dashboard() {
   const [ytStats, setYtStats] = useState(null);
   const [ytLoading, setYtLoading] = useState(false);
   const [ytError, setYtError] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
+  const [selectedTitleIndex, setSelectedTitleIndex] = useState(0);
+  const [privacyStatus, setPrivacyStatus] = useState("public");
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [postError, setPostError] = useState(null);
+  const [needsReconnect, setNeedsReconnect] = useState(false);
 
   // Check for YouTube connection callback
   useEffect(() => {
@@ -264,6 +272,74 @@ export default function Dashboard() {
     window.location.href = `/api/youtube/connect?clientId=${clientId}`;
   };
 
+  const uploadToYoutube = async () => {
+    if (!videoFile || !output) return;
+    setUploading(true);
+    setUploadProgress(0);
+    setPostError(null);
+    setUploadedUrl(null);
+    setNeedsReconnect(false);
+
+    try {
+      const titleToUse = output.titles?.[selectedTitleIndex] || output.titles?.[0] || "New Short";
+      const tags = (output.hashtags || []).map(h => h.replace(/^#/, ""));
+
+      // Step 1: Get resumable upload URL from our backend
+      const urlRes = await fetch("/api/youtube/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: selectedId,
+          title: titleToUse,
+          description: output.description || "",
+          tags,
+          privacyStatus,
+          fileType: videoFile.type,
+        }),
+      });
+
+      const urlData = await urlRes.json();
+
+      if (!urlRes.ok) {
+        if (urlData.needsReconnect) setNeedsReconnect(true);
+        throw new Error(urlData.error);
+      }
+
+      // Step 2: Upload video directly to YouTube
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", urlData.uploadUrl);
+        xhr.setRequestHeader("Content-Type", videoFile.type);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100));
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const response = JSON.parse(xhr.responseText);
+              setUploadedUrl(`https://youtube.com/shorts/${response.id}`);
+              resolve();
+            } catch {
+              resolve();
+            }
+          } else {
+            reject(new Error("Upload failed with status " + xhr.status));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error during upload"));
+        xhr.send(videoFile);
+      });
+
+    } catch (err) {
+      setPostError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleDisconnectYoutube = async (clientId) => {
     await fetch("/api/youtube/disconnect", {
       method: "POST",
@@ -287,6 +363,10 @@ export default function Dashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
       setOutput(data);
+      setVideoFile(null);
+      setUploadedUrl(null);
+      setPostError(null);
+      setSelectedTitleIndex(0);
       setHistory((prev) => [{
         id: Date.now(),
         clientId: selectedId,

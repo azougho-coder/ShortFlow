@@ -8,8 +8,10 @@ export default async function handler(req, res) {
   const { clientId } = req.query;
   if (!clientId) return res.status(400).json({ error: "Missing clientId" });
 
+  // Request both read and upload scopes
   const scopes = [
     "https://www.googleapis.com/auth/youtube.readonly",
+    "https://www.googleapis.com/auth/youtube.upload",
   ].join(" ");
 
   const params = new URLSearchParams({
