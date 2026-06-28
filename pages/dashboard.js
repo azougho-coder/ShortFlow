@@ -75,23 +75,17 @@ function OutputCards({ output, copied, onCopy }) {
         </Card>
       )}
       {output.postingTip && (
-        <div style={{ background: "#0A0E1A", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16, marginBottom: 12 }}>
+        <div style={{ background: "#0A0E1A", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: "#4F6EF7", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>💡 Posting Tip</div>
           <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.postingTip}</div>
         </div>
       )}
-
     </div>
   );
 }
 
-const DEFAULT_CLIENTS = [
-  { id: 1, name: "Demo Client", niche: "Finance & Entrepreneurship", tone: "Motivational, punchy, direct", notes: "Replace with your real client" },
-];
-
 function AuthGate({ children, subscription }) {
   const { data: session, status } = useSession();
-
   if (status === "loading") {
     return (
       <div style={{ minHeight: "100vh", background: "#080B14", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -102,21 +96,13 @@ function AuthGate({ children, subscription }) {
       </div>
     );
   }
-
   if (!session) {
     return (
       <div style={{ minHeight: "100vh", background: "#080B14", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, system-ui, sans-serif", color: "#F0F4FF" }}>
         <div style={{ textAlign: "center", padding: 40, maxWidth: 400 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 8 }}>
-            Short<span style={{ color: "#4F6EF7" }}>Flow</span>
-          </div>
-          <div style={{ fontSize: 14, color: "#6B7FA3", marginBottom: 32, lineHeight: 1.6 }}>
-            Sign in with Google to access your Shorts Manager dashboard.
-          </div>
-          <button
-            onClick={() => signIn("google")}
-            style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", color: "#1a1a1a", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", margin: "0 auto" }}
-          >
+          <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 8 }}>Short<span style={{ color: "#4F6EF7" }}>Flow</span></div>
+          <div style={{ fontSize: 14, color: "#6B7FA3", marginBottom: 32, lineHeight: 1.6 }}>Sign in with Google to access your Shorts Manager dashboard.</div>
+          <button onClick={() => signIn("google")} style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", color: "#1a1a1a", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", margin: "0 auto" }}>
             <img src="https://www.google.com/favicon.ico" width={18} height={18} alt="Google" />
             Sign in with Google
           </button>
@@ -127,37 +113,29 @@ function AuthGate({ children, subscription }) {
       </div>
     );
   }
-
   if (subscription === null) {
     return (
       <div style={{ minHeight: "100vh", background: "#080B14", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, system-ui, sans-serif", color: "#F0F4FF" }}>
         <div style={{ textAlign: "center", padding: 40, maxWidth: 400 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 8 }}>
-            Short<span style={{ color: "#4F6EF7" }}>Flow</span>
-          </div>
-          <div style={{ fontSize: 14, color: "#6B7FA3", marginBottom: 8, lineHeight: 1.6 }}>
-            Signed in as <strong style={{ color: "#F0F4FF" }}>{session.user.email}</strong>
-          </div>
-          <div style={{ fontSize: 14, color: "#6B7FA3", marginBottom: 32, lineHeight: 1.6 }}>
-            No active subscription found. Choose a plan to get access.
-          </div>
+          <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 8 }}>Short<span style={{ color: "#4F6EF7" }}>Flow</span></div>
+          <div style={{ fontSize: 14, color: "#6B7FA3", marginBottom: 8, lineHeight: 1.6 }}>Signed in as <strong style={{ color: "#F0F4FF" }}>{session.user.email}</strong></div>
+          <div style={{ fontSize: 14, color: "#6B7FA3", marginBottom: 32, lineHeight: 1.6 }}>No active subscription found. Choose a plan to get access.</div>
           <a href="/#pricing">
-            <button style={{ background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginBottom: 16 }}>
-              View Plans →
-            </button>
+            <button style={{ background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginBottom: 16 }}>View Plans →</button>
           </a>
           <div>
-            <button onClick={() => signOut()} style={{ background: "none", border: "none", color: "#3A4F70", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-              Sign out
-            </button>
+            <button onClick={() => signOut()} style={{ background: "none", border: "none", color: "#3A4F70", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Sign out</button>
           </div>
         </div>
       </div>
     );
   }
-
   return children;
 }
+
+const DEFAULT_CLIENTS = [
+  { id: 1, name: "Demo Client", niche: "Finance & Entrepreneurship", tone: "Motivational, punchy, direct", notes: "Replace with your real client" },
+];
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -189,54 +167,30 @@ export default function Dashboard() {
   const [postError, setPostError] = useState(null);
   const [needsReconnect, setNeedsReconnect] = useState(false);
 
-  // Check for YouTube connection callback
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const connected = params.get("youtube_connected");
     const ytErr = params.get("youtube_error");
-    if (connected) {
-      window.history.replaceState({}, "", "/dashboard");
-      setView("performance");
-    }
-    if (ytErr) {
-      window.history.replaceState({}, "", "/dashboard");
-      setYtError(decodeURIComponent(ytErr));
-      setView("performance");
-    }
+    if (connected) { window.history.replaceState({}, "", "/dashboard"); setView("performance"); }
+    if (ytErr) { window.history.replaceState({}, "", "/dashboard"); setYtError(decodeURIComponent(ytErr)); setView("performance"); }
   }, []);
 
-  // Auto-load YouTube stats when performance tab is opened
-  useEffect(() => {
-    if (view === "performance" && !ytStats && !ytLoading && selectedId) {
-      loadYtStats(selectedId);
-    }
-  }, [view, selectedId]);
-
-  // Check subscription when session is available
   useEffect(() => {
     if (session) {
-      fetch("/api/check-subscription")
-        .then(r => r.json())
-        .then(data => {
-          if (data.hasAccess) {
-            setSubscription(data);
-          } else {
-            setSubscription(null);
-          }
-        })
-        .catch(() => setSubscription(null));
+      fetch("/api/check-subscription").then(r => r.json()).then(data => {
+        setSubscription(data.hasAccess ? data : null);
+      }).catch(() => setSubscription(null));
     }
   }, [session]);
 
-  // localStorage persistence
   useEffect(() => {
     setMounted(true);
     try {
-      const savedClients = localStorage.getItem("shortflow-clients");
-      if (savedClients) setClients(JSON.parse(savedClients));
-      const savedHistory = localStorage.getItem("shortflow-history");
-      if (savedHistory) setHistory(JSON.parse(savedHistory));
+      const sc = localStorage.getItem("shortflow-clients");
+      if (sc) setClients(JSON.parse(sc));
+      const sh = localStorage.getItem("shortflow-history");
+      if (sh) setHistory(JSON.parse(sh));
     } catch (e) {}
   }, []);
 
@@ -250,112 +204,22 @@ export default function Dashboard() {
     try { localStorage.setItem("shortflow-history", JSON.stringify(history)); } catch (e) {}
   }, [history, mounted]);
 
+  useEffect(() => {
+    if (view === "performance" && !ytStats && !ytLoading && selectedId) {
+      loadYtStats(selectedId);
+    }
+  }, [view, selectedId]);
+
   const maxClients = subscription?.maxClients || 2;
   const planName = subscription?.plan || "starter";
   const client = clients.find((c) => c.id === selectedId);
-
-  const loadYtStats = async (cId) => {
-    setYtLoading(true);
-    setYtError(null);
-    try {
-      const res = await fetch(`/api/youtube/stats?clientId=${cId}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setYtStats(data);
-    } catch (err) {
-      setYtError(err.message);
-      setYtStats(null);
-    } finally {
-      setYtLoading(false);
-    }
-  };
-
-  const handleConnectYoutube = (clientId) => {
-    window.location.href = `/api/youtube/connect?clientId=${clientId}`;
-  };
-
-  const uploadToYoutube = async () => {
-    if (!videoFile || !output) return;
-    setUploading(true);
-    setUploadProgress(0);
-    setPostError(null);
-    setUploadedUrl(null);
-    setNeedsReconnect(false);
-
-    try {
-      const titleToUse = output.titles?.[selectedTitleIndex] || output.titles?.[0] || "New Short";
-      const tags = (output.hashtags || []).map(h => h.replace(/^#/, ""));
-
-      // Step 1: Get resumable upload URL from our backend
-      const urlRes = await fetch("/api/youtube/upload-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId: selectedId,
-          title: titleToUse,
-          description: editableDescription || output.description || "",
-          tags: editableHashtags.split(/\s+/).filter(Boolean).map(h => h.replace(/^#/, "")),
-          privacyStatus,
-          fileType: videoFile.type,
-        }),
-      });
-
-      const urlData = await urlRes.json();
-
-      if (!urlRes.ok) {
-        if (urlData.needsReconnect) setNeedsReconnect(true);
-        throw new Error(urlData.error);
-      }
-
-      // Step 2: Upload video directly to YouTube
-      await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("PUT", urlData.uploadUrl);
-        xhr.setRequestHeader("Content-Type", videoFile.type);
-
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100));
-        };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const response = JSON.parse(xhr.responseText);
-              setUploadedUrl(`https://youtube.com/shorts/${response.id}`);
-              resolve();
-            } catch {
-              resolve();
-            }
-          } else {
-            reject(new Error("Upload failed with status " + xhr.status));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error("Network error during upload"));
-        xhr.send(videoFile);
-      });
-
-    } catch (err) {
-      setPostError(err.message);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleDisconnectYoutube = async (clientId) => {
-    await fetch("/api/youtube/disconnect", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clientId }),
-    });
-    setYtStats(null);
-  };
+  const atLimit = clients.length >= maxClients;
+  const shown = historyDetail ? historyDetail.output : output;
 
   const handleGenerate = async () => {
     if (!transcript.trim()) { setError("Paste a transcript first."); return; }
     if (!client) { setError("Select a client."); return; }
     setGenerating(true); setError(null); setOutput(null);
-
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -365,16 +229,14 @@ export default function Dashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
       setOutput(data);
+      setEditableDescription(data.description || "");
+      setEditableHashtags((data.hashtags || []).map(h => "#" + h.replace(/^#/, "")).join(" "));
+      setSelectedTitleIndex(0);
       setVideoFile(null);
       setUploadedUrl(null);
       setPostError(null);
-      setSelectedTitleIndex(0);
-      setEditableDescription(data.description || "");
-      setEditableHashtags((data.hashtags || []).map(h => "#" + h.replace(/^#/, "")).join(" "));
       setHistory((prev) => [{
-        id: Date.now(),
-        clientId: selectedId,
-        clientName: client.name,
+        id: Date.now(), clientId: selectedId, clientName: client.name,
         preview: transcript.slice(0, 110) + (transcript.length > 110 ? "..." : ""),
         output: data,
         time: new Date().toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }),
@@ -386,10 +248,70 @@ export default function Dashboard() {
     }
   };
 
+  const loadYtStats = async (cId) => {
+    setYtLoading(true); setYtError(null);
+    try {
+      const res = await fetch(`/api/youtube/stats?clientId=${cId}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setYtStats(data);
+    } catch (err) {
+      setYtError(err.message); setYtStats(null);
+    } finally {
+      setYtLoading(false);
+    }
+  };
+
+  const handleConnectYoutube = (clientId) => {
+    window.location.href = `/api/youtube/connect?clientId=${clientId}`;
+  };
+
+  const handleDisconnectYoutube = async (clientId) => {
+    await fetch("/api/youtube/disconnect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clientId }) });
+    setYtStats(null);
+  };
+
+  const uploadToYoutube = async () => {
+    if (!videoFile || !output) return;
+    setUploading(true); setUploadProgress(0); setPostError(null); setUploadedUrl(null); setNeedsReconnect(false);
+    try {
+      const titleToUse = output.titles?.[selectedTitleIndex] || output.titles?.[0] || "New Short";
+      const urlRes = await fetch("/api/youtube/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: selectedId, title: titleToUse,
+          description: editableDescription || output.description || "",
+          tags: editableHashtags.split(/\s+/).filter(Boolean).map(h => h.replace(/^#/, "")),
+          privacyStatus, fileType: videoFile.type,
+        }),
+      });
+      const urlData = await urlRes.json();
+      if (!urlRes.ok) { if (urlData.needsReconnect) setNeedsReconnect(true); throw new Error(urlData.error); }
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", urlData.uploadUrl);
+        xhr.setRequestHeader("Content-Type", videoFile.type);
+        xhr.upload.onprogress = (e) => { if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100)); };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { const r = JSON.parse(xhr.responseText); setUploadedUrl(`https://youtube.com/shorts/${r.id}`); } catch {}
+            resolve();
+          } else { reject(new Error("Upload failed: " + xhr.status)); }
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(videoFile);
+      });
+    } catch (err) {
+      setPostError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const copy = (text, id) => {
     navigator.clipboard.writeText(text || "").catch(() => {});
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
+    setCopied(id); setTimeout(() => setCopied(null), 2000);
   };
 
   const addClient = () => {
@@ -399,8 +321,7 @@ export default function Dashboard() {
     setClients((p) => [...p, c]);
     setSelectedId(c.id);
     setNewClient({ name: "", niche: "", tone: "", notes: "" });
-    setShowModal(false);
-    setView("generate");
+    setShowModal(false); setView("generate");
   };
 
   const deleteClient = (id) => {
@@ -409,16 +330,21 @@ export default function Dashboard() {
     if (selectedId === id) setSelectedId(clients.find(c => c.id !== id)?.id);
   };
 
-  const shown = historyDetail ? historyDetail.output : output;
-  const atLimit = clients.length >= maxClients;
+  const planBadgeColor = { starter: "#6B7FA3", pro: "#4F6EF7", agency: "#F59E0B" };
 
-  const avatar = (name) => (
+  const av = (name) => (
     <div style={{ width: 28, height: 28, borderRadius: 7, background: "#1E2A5E", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#4F6EF7", flexShrink: 0 }}>
       {initials(name)}
     </div>
   );
 
-  const planBadgeColor = { starter: "#6B7FA3", pro: "#4F6EF7", agency: "#F59E0B" };
+  const NAV_ITEMS = [
+    ["generate", "⚡", "Generate"],
+    ["post", "🎬", "Post"],
+    ["clients", "👥", "Clients"],
+    ["history", "📋", "History"],
+    ["performance", "📈", "Performance"],
+  ];
 
   return (
     <>
@@ -458,9 +384,9 @@ export default function Dashboard() {
             .header-pad{padding:0 16px!important}
           }
           .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0A0E1A;border-top:1px solid #1A2340;z-index:50}
-          .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;border:none;background:none;color:#6B7FA3;font-size:10px;gap:4px;cursor:pointer;font-family:inherit}
+          .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;border:none;background:none;color:#6B7FA3;font-size:9px;gap:3px;cursor:pointer;font-family:inherit}
           .bnav-btn.a{color:#4F6EF7}
-          .bnav-icon{font-size:18px}
+          .bnav-icon{font-size:16px}
         `}</style>
 
         <div style={{ display: "flex", height: "100vh", fontFamily: "'Inter', system-ui, sans-serif", background: "#080B14", color: "#F0F4FF", overflow: "hidden" }}>
@@ -471,39 +397,32 @@ export default function Dashboard() {
               <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.5px" }}>Short<span style={{ color: "#4F6EF7" }}>Flow</span></div>
               <div style={{ fontSize: 11, color: "#3A4F70", marginTop: 3 }}>Shorts Manager</div>
             </div>
-
             <div style={{ padding: "0 12px", marginBottom: 24 }}>
-              {[["generate", "⚡", "Generate"], ["post", "🎬", "Post"], ["clients", "👥", "Clients"], ["history", "📋", "History"], ["performance", "📈", "Performance"]].map(([id, icon, label]) => (
+              {NAV_ITEMS.map(([id, icon, label]) => (
                 <button key={id} className={`nb ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
                   <span style={{ width: 18, textAlign: "center" }}>{icon}</span>{label}
                 </button>
               ))}
             </div>
-
             <div style={{ padding: "0 20px", fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 8 }}>
               Clients ({clients.length}/{maxClients === 999 ? "∞" : maxClients})
             </div>
-
             <div style={{ flex: 1, overflowY: "auto", padding: "0 12px" }}>
               {clients.map((c) => (
-                <div key={c.id} className={`ci ${selectedId === c.id ? "s" : ""}`} onClick={() => { setSelectedId(c.id); setView("generate"); setHistoryDetail(null); setOutput(null); }}>
-                  {avatar(c.name)}
+                <div key={c.id} className={`ci ${selectedId === c.id ? "s" : ""}`} onClick={() => { setSelectedId(c.id); setView("generate"); setHistoryDetail(null); setOutput(null); setYtStats(null); }}>
+                  {av(c.name)}
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>{c.name}</span>
                 </div>
               ))}
             </div>
-
             {atLimit && maxClients < 999 && (
               <div style={{ margin: "8px 12px 0", padding: "8px 12px", background: "#0D1525", border: "1px solid #1E2A5E", borderRadius: 8, fontSize: 11, color: "#4F6EF7", textAlign: "center" }}>
                 <a href="/#pricing" style={{ color: "#4F6EF7", textDecoration: "none" }}>Upgrade to add more clients →</a>
               </div>
             )}
-
             <button className="ab" onClick={() => setShowModal(true)} disabled={atLimit}>
               <span>＋</span> Add Client
             </button>
-
-            {/* User info */}
             {session && (
               <div style={{ margin: "8px 12px 0", padding: "10px 12px", borderTop: "1px solid #1A2340", display: "flex", alignItems: "center", gap: 8 }}>
                 {session.user.image && <img src={session.user.image} width={24} height={24} style={{ borderRadius: "50%" }} alt="" />}
@@ -524,6 +443,7 @@ export default function Dashboard() {
                 {view === "post" && "Post to YouTube"}
                 {view === "clients" && "All Clients"}
                 {view === "history" && (historyDetail ? "Past Result" : "History")}
+                {view === "performance" && "Performance"}
               </div>
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                 {view === "generate" && client && (
@@ -568,8 +488,7 @@ export default function Dashboard() {
                         ))}
                       </div>
                     )}
-
-
+                  </div>
                   <div className="output-col" style={{ width: 370, minWidth: 370, overflowY: "auto" }}>
                     {!shown && !generating && (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
@@ -589,209 +508,22 @@ export default function Dashboard() {
                 </>
               )}
 
-              {/* CLIENTS */}
-              {view === "clients" && (
-                <div style={{ flex: 1 }}>
-                  {atLimit && maxClients < 999 && (
-                    <div style={{ background: "#0D1525", border: "1px solid #1E2A5E", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#4F6EF7" }}>
-                      You've reached your {maxClients}-client limit. <a href="/#pricing" style={{ color: "#F59E0B", textDecoration: "none" }}>Upgrade your plan →</a>
-                    </div>
-                  )}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: 14 }}>
-                    {clients.map((c) => (
-                      <div key={c.id} className="cc" onClick={() => { setSelectedId(c.id); setView("generate"); }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#1E2A5E", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#4F6EF7", flexShrink: 0 }}>{initials(c.name)}</div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 2 }}>{c.name}</div>
-                            <div style={{ fontSize: 12, color: "#6B7FA3", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.niche}</div>
-                          </div>
-                          {clients.length > 1 && (
-                            <button onClick={(e) => { e.stopPropagation(); if(window.confirm("Remove " + c.name + "?")) deleteClient(c.id); }} style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 6, color: "#EF4444", cursor: "pointer", fontSize: 12, padding: "3px 8px", fontFamily: "inherit" }}>Remove</button>
-                          )}
-                        </div>
-                        <div style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#4F6EF7", display: "inline-block" }}>{c.tone.split(",")[0].trim()}</div>
-                      </div>
-                    ))}
-                    {!atLimit && (
-                      <div style={{ background: "#0A0E1A", border: "1px dashed #1E2A45", borderRadius: 12, padding: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#3A4F70", gap: 8, flexDirection: "column", minHeight: 110 }} onClick={() => setShowModal(true)}>
-                        <div style={{ fontSize: 22 }}>＋</div>
-                        <div style={{ fontSize: 13 }}>Add New Client</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* HISTORY */}
-              {view === "history" && !historyDetail && (
-                <div style={{ flex: 1, maxWidth: 680 }}>
-                  {history.length === 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 240, color: "#3A4F70", textAlign: "center", gap: 12 }}>
-                      <div style={{ fontSize: 36, opacity: 0.35 }}>📋</div>
-                      <div style={{ fontSize: 14, fontWeight: 600 }}>No history yet</div>
-                      <div style={{ fontSize: 13, opacity: 0.7 }}>Generated packages will appear here</div>
-                    </div>
-                  ) : history.map((h) => (
-                    <div key={h.id} className="hi" onClick={() => setHistoryDetail(h)}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                        {avatar(h.clientName)}
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>{h.clientName}</span>
-                        <span style={{ fontSize: 12, color: "#3A4F70" }}>· {h.time}</span>
-                        {h.output.clipRating && <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: RATING[h.output.clipRating]?.color }}>{RATING[h.output.clipRating]?.label}</span>}
-                      </div>
-                      <div style={{ fontSize: 13, color: "#6B7FA3", lineHeight: 1.4, marginBottom: h.output.titles?.[0] ? 8 : 0 }}>{h.preview}</div>
-                      {h.output.titles?.[0] && <div style={{ fontSize: 14, color: "#C8D4F0", fontWeight: 500 }}>{h.output.titles[0]}</div>}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {view === "history" && historyDetail && (
-                <div style={{ width: "100%", maxWidth: 480 }}>
-                  <OutputCards output={historyDetail.output} copied={copied} onCopy={copy} />
-                </div>
-              )}
-
-              {/* PERFORMANCE VIEW */}
-              {view === "performance" && planName === "starter" && (
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
-                  <div style={{ fontSize: 38, opacity: 0.35 }}>🔒</div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: "#F0F4FF" }}>Pro Feature</div>
-                  <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5 }}>YouTube performance reports are available on the Pro plan. Upgrade to connect channels and track what's working.</div>
-                  <a href="/#pricing" style={{ marginTop: 8 }}>
-                    <button style={{ padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                      Upgrade to Pro →
-                    </button>
-                  </a>
-                </div>
-              )}
-              {view === "performance" && planName !== "starter" && (
-                <div style={{ flex: 1, maxWidth: 800 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-                    <select className="fi" style={{ maxWidth: 240, cursor: "pointer" }} value={selectedId} onChange={(e) => { setSelectedId(Number(e.target.value)); setYtStats(null); }}>
-                      {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                    {!ytStats && (
-                      <button
-                        onClick={() => handleConnectYoutube(selectedId)}
-                        style={{ padding: "10px 20px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 8 }}
-                      >
-                        🎬 Connect YouTube Channel
-                      </button>
-                    )}
-                    {ytStats && (
-                      <button onClick={() => loadYtStats(selectedId)} style={{ padding: "8px 16px", background: "#111827", border: "1px solid #1A2340", color: "#6B7FA3", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                        ↻ Refresh
-                      </button>
-                    )}
-                    {ytStats && (
-                      <button onClick={() => handleDisconnectYoutube(selectedId)} style={{ padding: "8px 16px", background: "none", border: "1px solid #4A1515", color: "#EF4444", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                        Disconnect
-                      </button>
-                    )}
-                  </div>
-
-                  {!ytStats && !ytLoading && !ytError && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
-                      <div style={{ fontSize: 38, opacity: 0.35 }}>📈</div>
-                      <div style={{ fontSize: 14, fontWeight: 600 }}>No data loaded yet</div>
-                      <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5, opacity: 0.7 }}>If you already connected a channel, click Load Stats. Otherwise connect your client's YouTube channel first.</div>
-                      <button onClick={() => loadYtStats(selectedId)} style={{ marginTop: 8, padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        ↻ Load Stats
-                      </button>
-                      <button onClick={() => handleConnectYoutube(selectedId)} style={{ padding: "10px 24px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        🎬 Connect YouTube Channel
-                      </button>
-                    </div>
-                  )}
-
-                  {ytLoading && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 200, color: "#3A4F70", gap: 12 }}>
-                      <div className="gp" style={{ fontSize: 32 }}>📈</div>
-                      <div style={{ fontSize: 14 }}>Loading performance data...</div>
-                    </div>
-                  )}
-
-                  {ytError && (
-                    <div style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 10, padding: 16, color: "#EF4444", fontSize: 13, marginBottom: 16 }}>
-                      {ytError === "YouTube not connected for this client" ? (
-                        <span>This client's YouTube channel isn't connected yet. Click the button above to connect it.</span>
-                      ) : (
-                        <span>Error: {ytError}</span>
-                      )}
-                    </div>
-                  )}
-
-                  {ytStats && (
-                    <>
-                      {/* Channel header */}
-                      <div style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 12, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 14 }}>
-                        {ytStats.channel.thumb && <img src={ytStats.channel.thumb} width={48} height={48} style={{ borderRadius: "50%" }} alt="" />}
-                        <div>
-                          <div style={{ fontSize: 16, fontWeight: 600 }}>{ytStats.channel.name}</div>
-                          <div style={{ fontSize: 13, color: "#6B7FA3", marginTop: 2 }}>{Number(ytStats.channel.subscribers).toLocaleString()} subscribers</div>
-                        </div>
-                        <div style={{ marginLeft: "auto", fontSize: 11, color: "#3A4F70" }}>
-                          {ytStats.videos.length} recent Shorts
-                        </div>
-                      </div>
-
-                      {/* Top performer highlight */}
-                      {ytStats.videos.length > 0 && (
-                        <div style={{ background: "#0D1525", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16, marginBottom: 20 }}>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: "#4F6EF7", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>🏆 Top Performer</div>
-                          <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                            {ytStats.videos[0].thumbnail && <img src={ytStats.videos[0].thumbnail} width={80} style={{ borderRadius: 6, flexShrink: 0 }} alt="" />}
-                            <div>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: "#C8D4F0", marginBottom: 6, lineHeight: 1.3 }}>{ytStats.videos[0].title}</div>
-                              <div style={{ display: "flex", gap: 16, fontSize: 13 }}>
-                                <span style={{ color: "#F59E0B" }}>👁 {Number(ytStats.videos[0].views).toLocaleString()} views</span>
-                                <span style={{ color: "#10B981" }}>👍 {Number(ytStats.videos[0].likes).toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Video list */}
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>All Recent Shorts</div>
-                      {ytStats.videos.map((v, i) => (
-                        <div key={v.id} style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", gap: 12, alignItems: "center" }}>
-                          <div style={{ fontSize: 12, color: "#3A4F70", fontWeight: 700, width: 20, flexShrink: 0 }}>#{i+1}</div>
-                          {v.thumbnail && <img src={v.thumbnail} width={50} style={{ borderRadius: 5, flexShrink: 0 }} alt="" />}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 13, color: "#C8D4F0", lineHeight: 1.3, marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.title}</div>
-                            <div style={{ display: "flex", gap: 12, fontSize: 12, color: "#6B7FA3" }}>
-                              <span>👁 {Number(v.views).toLocaleString()}</span>
-                              <span>👍 {Number(v.likes).toLocaleString()}</span>
-                              <span>💬 {Number(v.comments).toLocaleString()}</span>
-                            </div>
-                          </div>
-                          <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ color: "#4F6EF7", fontSize: 11, textDecoration: "none", flexShrink: 0 }}>View →</a>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-
-              {/* POST VIEW */}
-              {view === "post" && planName === "starter" && (
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
-                  <div style={{ fontSize: 38, opacity: 0.35 }}>🔒</div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: "#F0F4FF" }}>Pro Feature</div>
-                  <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5 }}>Auto-posting to YouTube is available on the Pro plan.</div>
-                  <a href="/#pricing" style={{ marginTop: 8 }}><button style={{ padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Upgrade to Pro</button></a>
-                </div>
-              )}
-              {view === "post" && planName !== "starter" && (
+              {/* POST */}
+              {view === "post" && (
                 <div style={{ flex: 1, maxWidth: 560 }}>
-                  {!output ? (
+                  {planName === "starter" ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                      <div style={{ fontSize: 38, opacity: 0.35 }}>🔒</div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: "#F0F4FF" }}>Pro Feature</div>
+                      <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5 }}>Auto-posting to YouTube is available on the Pro plan.</div>
+                      <a href="/#pricing" style={{ marginTop: 8 }}>
+                        <button style={{ padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Upgrade to Pro</button>
+                      </a>
+                    </div>
+                  ) : !output ? (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 240, color: "#3A4F70", textAlign: "center", gap: 12 }}>
                       <div style={{ fontSize: 38, opacity: 0.35 }}>🎬</div>
-                      <div style={{ fontSize: 14, fontWeight: 600 }}>No package generated yet</div>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>No package yet</div>
                       <div style={{ fontSize: 13, maxWidth: 220, lineHeight: 1.5, opacity: 0.7 }}>Generate a metadata package first, then come here to post</div>
                       <button onClick={() => setView("generate")} style={{ marginTop: 4, padding: "9px 20px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Go to Generate</button>
                     </div>
@@ -809,7 +541,7 @@ export default function Dashboard() {
                       <div>
                         <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Title</div>
                         <select className="fi" style={{ cursor: "pointer" }} value={selectedTitleIndex} onChange={(e) => setSelectedTitleIndex(Number(e.target.value))}>
-                          {(output.titles || []).map((t, i) => (<option key={i} value={i}>0{i+1}. {t}</option>))}
+                          {(output.titles || []).map((t, i) => (<option key={i} value={i}>0{i + 1}. {t}</option>))}
                         </select>
                       </div>
                       <div>
@@ -840,7 +572,9 @@ export default function Dashboard() {
                       {postError && (
                         <div style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 8, padding: "12px 14px", color: "#EF4444", fontSize: 13 }}>
                           {postError}
-                          {needsReconnect && <button onClick={() => handleConnectYoutube(selectedId)} style={{ display: "block", marginTop: 10, background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 6, padding: "7px 14px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Reconnect YouTube →</button>}
+                          {needsReconnect && (
+                            <button onClick={() => handleConnectYoutube(selectedId)} style={{ display: "block", marginTop: 10, background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 6, padding: "7px 14px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Reconnect YouTube →</button>
+                          )}
                         </div>
                       )}
                       {uploading && (
@@ -849,52 +583,206 @@ export default function Dashboard() {
                             <span>Uploading...</span><span>{uploadProgress}%</span>
                           </div>
                           <div style={{ background: "#111827", borderRadius: 6, height: 8 }}>
-                            <div style={{ background: "#4F6EF7", height: "100%", width: uploadProgress+"%", transition: "width 0.3s", borderRadius: 6 }} />
+                            <div style={{ background: "#4F6EF7", height: "100%", width: uploadProgress + "%", transition: "width 0.3s", borderRadius: 6 }} />
                           </div>
                         </div>
                       )}
                       <button onClick={uploadToYoutube} disabled={!videoFile || uploading} style={{ width: "100%", padding: "14px", background: videoFile && !uploading ? "#EF4444" : "#111827", color: videoFile && !uploading ? "#fff" : "#3A4F70", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: videoFile && !uploading ? "pointer" : "not-allowed", fontFamily: "inherit", transition: "all 0.2s" }}>
-                        {uploading ? "Uploading "+uploadProgress+"%..." : "🎬 Post to YouTube"}
+                        {uploading ? "Uploading " + uploadProgress + "%..." : "🎬 Post to YouTube"}
                       </button>
                     </div>
                   )}
                 </div>
               )}
-            </div>
-          </div>
 
-          {/* BOTTOM NAV mobile */}
-          <div className="bottom-nav">
-            {[["generate", "⚡", "Generate"], ["post", "🎬", "Post"], ["clients", "👥", "Clients"], ["history", "📋", "History"], ["performance", "📈", "Stats"]].map(([id, icon, label]) => (
-              <button key={id} className={`bnav-btn ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
-                <span className="bnav-icon">{icon}</span>{label}
-              </button>
-            ))}
-          </div>
-
-          {/* ADD CLIENT MODAL */}
-          {showModal && (
-            <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.78)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }} onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
-              <div style={{ background: "#0F1629", border: "1px solid #1E2A45", borderRadius: 16, padding: 28, width: 440, maxWidth: "90vw" }}>
-                <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Add New Client</div>
-                {[
-                  { k: "name", l: "Client Name *", p: "e.g. The Diary of a CEO" },
-                  { k: "niche", l: "Niche *", p: "e.g. Business & Self-improvement" },
-                  { k: "tone", l: "Tone & Style", p: "e.g. Storytelling, emotional, thought-provoking" },
-                  { k: "notes", l: "Notes", p: "e.g. Audience 25-40, responds well to vulnerability" },
-                ].map(({ k, l, p }) => (
-                  <div key={k} style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "#6B7FA3", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{l}</div>
-                    <input className="fi" placeholder={p} value={newClient[k]} onChange={(e) => setNewClient((prev) => ({ ...prev, [k]: e.target.value }))} />
+              {/* CLIENTS */}
+              {view === "clients" && (
+                <div style={{ flex: 1 }}>
+                  {atLimit && maxClients < 999 && (
+                    <div style={{ background: "#0D1525", border: "1px solid #1E2A5E", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#4F6EF7" }}>
+                      You've reached your {maxClients}-client limit. <a href="/#pricing" style={{ color: "#F59E0B", textDecoration: "none" }}>Upgrade →</a>
+                    </div>
+                  )}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: 14 }}>
+                    {clients.map((c) => (
+                      <div key={c.id} className="cc" onClick={() => { setSelectedId(c.id); setView("generate"); }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#1E2A5E", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#4F6EF7", flexShrink: 0 }}>{initials(c.name)}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 2 }}>{c.name}</div>
+                            <div style={{ fontSize: 12, color: "#6B7FA3", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.niche}</div>
+                          </div>
+                          {clients.length > 1 && (
+                            <button onClick={(e) => { e.stopPropagation(); if (window.confirm("Remove " + c.name + "?")) deleteClient(c.id); }} style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 6, color: "#EF4444", cursor: "pointer", fontSize: 12, padding: "3px 8px", fontFamily: "inherit" }}>Remove</button>
+                          )}
+                        </div>
+                        <div style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#4F6EF7", display: "inline-block" }}>{c.tone.split(",")[0].trim()}</div>
+                      </div>
+                    ))}
+                    {!atLimit && (
+                      <div style={{ background: "#0A0E1A", border: "1px dashed #1E2A45", borderRadius: 12, padding: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#3A4F70", gap: 8, flexDirection: "column", minHeight: 110 }} onClick={() => setShowModal(true)}>
+                        <div style={{ fontSize: 22 }}>＋</div>
+                        <div style={{ fontSize: 13 }}>Add New Client</div>
+                      </div>
+                    )}
                   </div>
-                ))}
-                <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-                  <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid #1E2A45", background: "none", color: "#6B7FA3", fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
-                  <button onClick={addClient} style={{ flex: 1, padding: 10, borderRadius: 8, border: "none", background: "#4F6EF7", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Add Client</button>
+                </div>
+              )}
+
+              {/* HISTORY */}
+              {view === "history" && !historyDetail && (
+                <div style={{ flex: 1, maxWidth: 680 }}>
+                  {history.length === 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 240, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                      <div style={{ fontSize: 36, opacity: 0.35 }}>📋</div>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>No history yet</div>
+                    </div>
+                  ) : history.map((h) => (
+                    <div key={h.id} className="hi" onClick={() => setHistoryDetail(h)}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                        {av(h.clientName)}
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{h.clientName}</span>
+                        <span style={{ fontSize: 12, color: "#3A4F70" }}>· {h.time}</span>
+                        {h.output.clipRating && <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: RATING[h.output.clipRating]?.color }}>{RATING[h.output.clipRating]?.label}</span>}
+                      </div>
+                      <div style={{ fontSize: 13, color: "#6B7FA3", lineHeight: 1.4, marginBottom: h.output.titles?.[0] ? 8 : 0 }}>{h.preview}</div>
+                      {h.output.titles?.[0] && <div style={{ fontSize: 14, color: "#C8D4F0", fontWeight: 500 }}>{h.output.titles[0]}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {view === "history" && historyDetail && (
+                <div style={{ width: "100%", maxWidth: 480 }}>
+                  <OutputCards output={historyDetail.output} copied={copied} onCopy={copy} />
+                </div>
+              )}
+
+              {/* PERFORMANCE */}
+              {view === "performance" && (
+                <div style={{ flex: 1, maxWidth: 800 }}>
+                  {planName === "starter" ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                      <div style={{ fontSize: 38, opacity: 0.35 }}>🔒</div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: "#F0F4FF" }}>Pro Feature</div>
+                      <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5 }}>YouTube performance reports are on the Pro plan.</div>
+                      <a href="/#pricing" style={{ marginTop: 8 }}>
+                        <button style={{ padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Upgrade to Pro</button>
+                      </a>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                        <select className="fi" style={{ maxWidth: 240, cursor: "pointer" }} value={selectedId} onChange={(e) => { setSelectedId(Number(e.target.value)); setYtStats(null); }}>
+                          {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                        {!ytStats && <button onClick={() => handleConnectYoutube(selectedId)} style={{ padding: "10px 20px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>🎬 Connect YouTube</button>}
+                        {ytStats && <button onClick={() => loadYtStats(selectedId)} style={{ padding: "8px 16px", background: "#111827", border: "1px solid #1A2340", color: "#6B7FA3", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Refresh</button>}
+                        {ytStats && <button onClick={() => handleDisconnectYoutube(selectedId)} style={{ padding: "8px 16px", background: "none", border: "1px solid #4A1515", color: "#EF4444", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Disconnect</button>}
+                      </div>
+                      {!ytStats && !ytLoading && !ytError && (
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                          <div style={{ fontSize: 38, opacity: 0.35 }}>📈</div>
+                          <div style={{ fontSize: 14, fontWeight: 600 }}>No data yet</div>
+                          <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5, opacity: 0.7 }}>Connect your client's YouTube channel to see performance data</div>
+                          <button onClick={() => loadYtStats(selectedId)} style={{ padding: "10px 20px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>↻ Load Stats</button>
+                          <button onClick={() => handleConnectYoutube(selectedId)} style={{ padding: "10px 20px", background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>🎬 Connect YouTube</button>
+                        </div>
+                      )}
+                      {ytLoading && (
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 200, color: "#3A4F70", gap: 12 }}>
+                          <div className="gp" style={{ fontSize: 32 }}>📈</div>
+                          <div style={{ fontSize: 14 }}>Loading...</div>
+                        </div>
+                      )}
+                      {ytError && (
+                        <div style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 10, padding: 16, color: "#EF4444", fontSize: 13, marginBottom: 16 }}>
+                          {ytError === "YouTube not connected for this client" ? "Not connected yet. Click Connect YouTube above." : ytError}
+                        </div>
+                      )}
+                      {ytStats && (
+                        <>
+                          <div style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 12, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 14 }}>
+                            {ytStats.channel.thumb && <img src={ytStats.channel.thumb} width={48} height={48} style={{ borderRadius: "50%" }} alt="" />}
+                            <div>
+                              <div style={{ fontSize: 16, fontWeight: 600 }}>{ytStats.channel.name}</div>
+                              <div style={{ fontSize: 13, color: "#6B7FA3", marginTop: 2 }}>{Number(ytStats.channel.subscribers).toLocaleString()} subscribers</div>
+                            </div>
+                            <div style={{ marginLeft: "auto", fontSize: 11, color: "#3A4F70" }}>{ytStats.videos.length} recent Shorts</div>
+                          </div>
+                          {ytStats.videos.length > 0 && (
+                            <div style={{ background: "#0D1525", border: "1px solid #1E2A5E", borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: "#4F6EF7", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>🏆 Top Performer</div>
+                              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                                {ytStats.videos[0].thumbnail && <img src={ytStats.videos[0].thumbnail} width={80} style={{ borderRadius: 6, flexShrink: 0 }} alt="" />}
+                                <div>
+                                  <div style={{ fontSize: 14, fontWeight: 600, color: "#C8D4F0", marginBottom: 6, lineHeight: 1.3 }}>{ytStats.videos[0].title}</div>
+                                  <div style={{ display: "flex", gap: 16, fontSize: 13 }}>
+                                    <span style={{ color: "#F59E0B" }}>👁 {Number(ytStats.videos[0].views).toLocaleString()}</span>
+                                    <span style={{ color: "#10B981" }}>👍 {Number(ytStats.videos[0].likes).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>All Recent Shorts</div>
+                          {ytStats.videos.map((v, i) => (
+                            <div key={v.id} style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", gap: 12, alignItems: "center" }}>
+                              <div style={{ fontSize: 12, color: "#3A4F70", fontWeight: 700, width: 20, flexShrink: 0 }}>#{i + 1}</div>
+                              {v.thumbnail && <img src={v.thumbnail} width={50} style={{ borderRadius: 5, flexShrink: 0 }} alt="" />}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 13, color: "#C8D4F0", lineHeight: 1.3, marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.title}</div>
+                                <div style={{ display: "flex", gap: 12, fontSize: 12, color: "#6B7FA3" }}>
+                                  <span>👁 {Number(v.views).toLocaleString()}</span>
+                                  <span>👍 {Number(v.likes).toLocaleString()}</span>
+                                  <span>💬 {Number(v.comments).toLocaleString()}</span>
+                                </div>
+                              </div>
+                              <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ color: "#4F6EF7", fontSize: 11, textDecoration: "none", flexShrink: 0 }}>View →</a>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+            </div>
+
+            {/* BOTTOM NAV mobile */}
+            <div className="bottom-nav">
+              {NAV_ITEMS.map(([id, icon, label]) => (
+                <button key={id} className={`bnav-btn ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
+                  <span className="bnav-icon">{icon}</span>{label}
+                </button>
+              ))}
+            </div>
+
+            {/* ADD CLIENT MODAL */}
+            {showModal && (
+              <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.78)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }} onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
+                <div style={{ background: "#0F1629", border: "1px solid #1E2A45", borderRadius: 16, padding: 28, width: 440, maxWidth: "90vw" }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Add New Client</div>
+                  {[
+                    { k: "name", l: "Client Name *", p: "e.g. The Diary of a CEO" },
+                    { k: "niche", l: "Niche *", p: "e.g. Business & Self-improvement" },
+                    { k: "tone", l: "Tone & Style", p: "e.g. Storytelling, emotional" },
+                    { k: "notes", l: "Notes", p: "e.g. Audience 25-40, responds well to vulnerability" },
+                  ].map(({ k, l, p }) => (
+                    <div key={k} style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#6B7FA3", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{l}</div>
+                      <input className="fi" placeholder={p} value={newClient[k]} onChange={(e) => setNewClient((prev) => ({ ...prev, [k]: e.target.value }))} />
+                    </div>
+                  ))}
+                  <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+                    <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid #1E2A45", background: "none", color: "#6B7FA3", fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+                    <button onClick={addClient} style={{ flex: 1, padding: 10, borderRadius: 8, border: "none", background: "#4F6EF7", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Add Client</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
         </div>
       </AuthGate>
     </>
