@@ -563,6 +563,82 @@ export default function Dashboard() {
                         ))}
                       </div>
                     )}
+
+
+                  {/* POST TO YOUTUBE */}
+                  {planName === "starter" ? (
+                    <div style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 12, padding: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#F0F4FF", marginBottom: 3 }}>🎬 Auto-Post to YouTube</div>
+                        <div style={{ fontSize: 11, color: "#6B7FA3" }}>Pro feature</div>
+                      </div>
+                      <a href="/#pricing"><button style={{ background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 7, padding: "7px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Upgrade</button></a>
+                    </div>
+                  ) : (
+                    <div style={{ background: "#0A0E1A", border: "1px solid #1A2340", borderRadius: 12, padding: 16 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>🎬 Post to YouTube</div>
+                      {uploadedUrl ? (
+                        <div style={{ textAlign: "center", padding: "8px 0" }}>
+                          <div style={{ fontSize: 22, marginBottom: 6 }}>🎉</div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "#10B981", marginBottom: 6 }}>Posted!</div>
+                          <a href={uploadedUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#4F6EF7", fontSize: 13, textDecoration: "none" }}>View on YouTube →</a>
+                          <div style={{ marginTop: 10 }}>
+                            <button onClick={() => { setUploadedUrl(null); setVideoFile(null); }} style={{ background: "none", border: "1px solid #1A2340", borderRadius: 6, padding: "5px 12px", color: "#6B7FA3", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Post Another</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {output && (
+                            <div style={{ marginBottom: 10 }}>
+                              <div style={{ fontSize: 11, color: "#6B7FA3", marginBottom: 5 }}>Title</div>
+                              <select className="fi" style={{ cursor: "pointer", fontSize: 12 }} value={selectedTitleIndex} onChange={(e) => setSelectedTitleIndex(Number(e.target.value))}>
+                                {(output.titles || []).map((t, i) => (
+                                  <option key={i} value={i}>0{i+1}. {t.slice(0,45)}{t.length>45?"...":""}</option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+                          <div style={{ marginBottom: 10 }}>
+                            <div style={{ fontSize: 11, color: "#6B7FA3", marginBottom: 5 }}>Privacy</div>
+                            <select className="fi" style={{ cursor: "pointer", fontSize: 12 }} value={privacyStatus} onChange={(e) => setPrivacyStatus(e.target.value)}>
+                              <option value="public">Public</option>
+                              <option value="unlisted">Unlisted</option>
+                              <option value="private">Private</option>
+                            </select>
+                          </div>
+                          <div style={{ marginBottom: 10 }}>
+                            <div style={{ fontSize: 11, color: "#6B7FA3", marginBottom: 5 }}>Video File</div>
+                            <label style={{ display: "flex", alignItems: "center", gap: 8, background: "#080B14", border: "1px solid #1A2340", borderRadius: 8, padding: "9px 12px", cursor: "pointer", fontSize: 12, color: videoFile ? "#C8D4F0" : "#3A4F70" }}>
+                              <span>📎</span>
+                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{videoFile ? videoFile.name : "Choose video file..."}</span>
+                              <input type="file" accept="video/*" style={{ display: "none" }} onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
+                            </label>
+                          </div>
+                          {postError && (
+                            <div style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 7, padding: "9px 12px", color: "#EF4444", fontSize: 12, marginBottom: 10 }}>
+                              {postError}
+                              {needsReconnect && (
+                                <button onClick={() => handleConnectYoutube(selectedId)} style={{ display: "block", marginTop: 8, background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Reconnect YouTube →</button>
+                              )}
+                            </div>
+                          )}
+                          {uploading && (
+                            <div style={{ marginBottom: 10 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#6B7FA3", marginBottom: 5 }}>
+                                <span>Uploading...</span><span>{uploadProgress}%</span>
+                              </div>
+                              <div style={{ background: "#111827", borderRadius: 4, height: 5 }}>
+                                <div style={{ background: "#4F6EF7", height: "100%", width: uploadProgress+"%", transition: "width 0.3s", borderRadius: 4 }} />
+                              </div>
+                            </div>
+                          )}
+                          <button onClick={uploadToYoutube} disabled={!videoFile || uploading || !output} style={{ width: "100%", padding: "11px", background: videoFile && !uploading && output ? "#EF4444" : "#111827", color: videoFile && !uploading && output ? "#fff" : "#3A4F70", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: videoFile && !uploading && output ? "pointer" : "not-allowed", fontFamily: "inherit", transition: "all 0.2s" }}>
+                            {uploading ? "Uploading "+uploadProgress+"%..." : "🎬 Post to YouTube"}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                   </div>
 
                   <div className="output-col" style={{ width: 370, minWidth: 370, overflowY: "auto" }}>
