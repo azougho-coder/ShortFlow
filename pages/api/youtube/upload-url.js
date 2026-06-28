@@ -50,9 +50,14 @@ export default async function handler(req, res) {
     }
 
     // Append hashtags to description for YouTube
-    const cleanTags = (tags || []).map(t => t.replace(/^#/, "")).filter(Boolean).slice(0, 15);
-    const hashtagLine = cleanTags.map(t => `#${t}`).join(" ");
-    const fullDescription = (description || "") + (hashtagLine ? "\n\n" + hashtagLine : "");
+    // Tags are comma-separated keywords for YouTube tag section (no # needed)
+    const cleanTags = (tags || [])
+      .flatMap(t => t.split(","))
+      .map(t => t.replace(/^#/, "").trim())
+      .filter(Boolean)
+      .slice(0, 15);
+    // Description already has hashtags appended by the frontend
+    const fullDescription = description || "";
 
     // Initiate resumable upload session
     const uploadRes = await fetch(

@@ -62,13 +62,22 @@ function OutputCards({ output, copied, onCopy }) {
       <Card title="Description" action={<CopyBtn text={output.description} id="desc" copied={copied} onCopy={onCopy} />}>
         <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 130, overflowY: "auto" }}>{output.description}</div>
       </Card>
-      <Card title="Tags" action={<CopyBtn text={(output.hashtags || []).map(h => `#${h.replace(/^#/, "")}`).join(" ")} id="tags" copied={copied} onCopy={onCopy} />}>
+      <Card title="Tags (YouTube Tag Section)" action={<CopyBtn text={(output.tags || output.hashtags || []).join(", ")} id="tags" copied={copied} onCopy={onCopy} />}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {(output.hashtags || []).map((tag, i) => (
-            <div key={i} style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "4px 10px", fontSize: 12, color: "#4F6EF7" }}>#{tag.replace(/^#/, "")}</div>
+          {(output.tags || output.hashtags || []).map((tag, i) => (
+            <div key={i} style={{ background: "#0D1525", border: "1px solid #1E2A45", borderRadius: 20, padding: "4px 10px", fontSize: 12, color: "#4F6EF7" }}>{tag.replace(/^#/, "")}</div>
           ))}
         </div>
       </Card>
+      {(output.hashtags || []).length > 0 && (
+        <Card title="Hashtags (for Description)" action={<CopyBtn text={(output.hashtags || []).map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} id="hashtags" copied={copied} onCopy={onCopy} />}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {(output.hashtags || []).map((tag, i) => (
+              <div key={i} style={{ background: "#0A1A0D", border: "1px solid #1C3A1C", borderRadius: 20, padding: "4px 10px", fontSize: 12, color: "#10B981" }}>{tag.startsWith("#") ? tag : `#${tag}`}</div>
+            ))}
+          </div>
+        </Card>
+      )}
       {output.bestMoment && (
         <Card title="Best Moment to Highlight">
           <div style={{ fontSize: 13, color: "#8B9DC0", lineHeight: 1.5 }}>{output.bestMoment}</div>
@@ -230,7 +239,10 @@ export default function Dashboard() {
       if (!res.ok) throw new Error(data.error || "Generation failed");
       setOutput(data);
       setEditableDescription(data.description || "");
-      setEditableHashtags((data.hashtags || []).map(h => "#" + h.replace(/^#/, "")).join(" "));
+      // Pre-fill tags (for YouTube tag section)
+      setEditableHashtags((data.tags || data.hashtags || []).map(h => h.replace(/^#/, "")).join(", "));
+      // Store hashtags for auto-append to description
+      setEditableDescription((data.description || "") + ((data.hashtags || []).length > 0 ? "\n\n" + (data.hashtags || []).map(h => h.startsWith("#") ? h : `#${h}`).join(" ") : ""));
       setSelectedTitleIndex(0);
       setVideoFile(null);
       setUploadedUrl(null);
@@ -569,7 +581,7 @@ export default function Dashboard() {
                         <textarea className="fi" style={{ minHeight: 120, resize: "vertical", lineHeight: 1.6 }} value={editableDescription} onChange={(e) => setEditableDescription(e.target.value)} placeholder="Video description..." />
                       </div>
                       <div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Tags</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Tags (YouTube tag section)</div>
                         <textarea className="fi" style={{ minHeight: 60, resize: "vertical", fontSize: 13 }} value={editableHashtags} onChange={(e) => setEditableHashtags(e.target.value)} placeholder="#shorts #youtube #viral" />
                         <div style={{ fontSize: 11, color: "#3A4F70", marginTop: 4 }}>Separate with spaces.</div>
                       </div>
