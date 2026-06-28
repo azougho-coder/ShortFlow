@@ -776,11 +776,96 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+
+              {/* POST VIEW */}
+              {view === "post" && planName === "starter" && (
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                  <div style={{ fontSize: 38, opacity: 0.35 }}>🔒</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: "#F0F4FF" }}>Pro Feature</div>
+                  <div style={{ fontSize: 13, maxWidth: 260, lineHeight: 1.5 }}>Auto-posting to YouTube is available on the Pro plan.</div>
+                  <a href="/#pricing" style={{ marginTop: 8 }}><button style={{ padding: "10px 24px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Upgrade to Pro</button></a>
+                </div>
+              )}
+              {view === "post" && planName !== "starter" && (
+                <div style={{ flex: 1, maxWidth: 560 }}>
+                  {!output ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 240, color: "#3A4F70", textAlign: "center", gap: 12 }}>
+                      <div style={{ fontSize: 38, opacity: 0.35 }}>🎬</div>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>No package generated yet</div>
+                      <div style={{ fontSize: 13, maxWidth: 220, lineHeight: 1.5, opacity: 0.7 }}>Generate a metadata package first, then come here to post</div>
+                      <button onClick={() => setView("generate")} style={{ marginTop: 4, padding: "9px 20px", background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Go to Generate</button>
+                    </div>
+                  ) : uploadedUrl ? (
+                    <div style={{ textAlign: "center", padding: "40px 0" }}>
+                      <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: "#10B981", marginBottom: 8 }}>Posted!</div>
+                      <a href={uploadedUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#4F6EF7", fontSize: 15, textDecoration: "none", fontWeight: 600 }}>View on YouTube →</a>
+                      <div style={{ marginTop: 24 }}>
+                        <button onClick={() => { setUploadedUrl(null); setVideoFile(null); }} style={{ background: "none", border: "1px solid #1A2340", borderRadius: 8, padding: "9px 20px", color: "#6B7FA3", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Post Another</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Title</div>
+                        <select className="fi" style={{ cursor: "pointer" }} value={selectedTitleIndex} onChange={(e) => setSelectedTitleIndex(Number(e.target.value))}>
+                          {(output.titles || []).map((t, i) => (<option key={i} value={i}>0{i+1}. {t}</option>))}
+                        </select>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Description</div>
+                        <textarea className="fi" style={{ minHeight: 120, resize: "vertical", lineHeight: 1.6 }} value={editableDescription} onChange={(e) => setEditableDescription(e.target.value)} placeholder="Video description..." />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Hashtags</div>
+                        <textarea className="fi" style={{ minHeight: 60, resize: "vertical", fontSize: 13 }} value={editableHashtags} onChange={(e) => setEditableHashtags(e.target.value)} placeholder="#shorts #youtube #viral" />
+                        <div style={{ fontSize: 11, color: "#3A4F70", marginTop: 4 }}>Separate with spaces.</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Privacy</div>
+                        <select className="fi" style={{ cursor: "pointer" }} value={privacyStatus} onChange={(e) => setPrivacyStatus(e.target.value)}>
+                          <option value="public">Public</option>
+                          <option value="unlisted">Unlisted</option>
+                          <option value="private">Private</option>
+                        </select>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#3A4F70", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Video File</div>
+                        <label style={{ display: "flex", alignItems: "center", gap: 10, background: "#080B14", border: "1px solid #1A2340", borderRadius: 8, padding: "12px 14px", cursor: "pointer", fontSize: 14, color: videoFile ? "#C8D4F0" : "#3A4F70" }}>
+                          <span>📎</span>
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{videoFile ? videoFile.name : "Choose video file..."}</span>
+                          <input type="file" accept="video/*" style={{ display: "none" }} onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
+                        </label>
+                      </div>
+                      {postError && (
+                        <div style={{ background: "#1F0A0A", border: "1px solid #4A1515", borderRadius: 8, padding: "12px 14px", color: "#EF4444", fontSize: 13 }}>
+                          {postError}
+                          {needsReconnect && <button onClick={() => handleConnectYoutube(selectedId)} style={{ display: "block", marginTop: 10, background: "#4F6EF7", color: "#fff", border: "none", borderRadius: 6, padding: "7px 14px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Reconnect YouTube →</button>}
+                        </div>
+                      )}
+                      {uploading && (
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#6B7FA3", marginBottom: 8 }}>
+                            <span>Uploading...</span><span>{uploadProgress}%</span>
+                          </div>
+                          <div style={{ background: "#111827", borderRadius: 6, height: 8 }}>
+                            <div style={{ background: "#4F6EF7", height: "100%", width: uploadProgress+"%", transition: "width 0.3s", borderRadius: 6 }} />
+                          </div>
+                        </div>
+                      )}
+                      <button onClick={uploadToYoutube} disabled={!videoFile || uploading} style={{ width: "100%", padding: "14px", background: videoFile && !uploading ? "#EF4444" : "#111827", color: videoFile && !uploading ? "#fff" : "#3A4F70", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: videoFile && !uploading ? "pointer" : "not-allowed", fontFamily: "inherit", transition: "all 0.2s" }}>
+                        {uploading ? "Uploading "+uploadProgress+"%..." : "🎬 Post to YouTube"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* BOTTOM NAV mobile */}
           <div className="bottom-nav">
-            {[["generate", "⚡", "Generate"], ["clients", "👥", "Clients"], ["history", "📋", "History"]].map(([id, icon, label]) => (
+            {[["generate", "⚡", "Generate"], ["post", "🎬", "Post"], ["clients", "👥", "Clients"], ["history", "📋", "History"], ["performance", "📈", "Stats"]].map(([id, icon, label]) => (
               <button key={id} className={`bnav-btn ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
                 <span className="bnav-icon">{icon}</span>{label}
               </button>
