@@ -22,7 +22,9 @@ export default async function handler(req, res) {
 
   try {
     const checkoutSession = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      // No payment_method_types listed — Stripe automatically shows
+      // whichever methods you've enabled in the Dashboard that are
+      // valid for this transaction (currency, subscription mode, etc).
       mode: "subscription",
       customer_email: session.user.email,
       line_items: [{ price: priceId, quantity: 1 }],
