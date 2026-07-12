@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 const PLANS = [
   {
     name: "Starter",
-    price: "€14.99",
+    price: "€19.99",
     per: "/month",
     description: "Perfect for getting your first clients",
     features: ["Up to 2 clients", "Unlimited metadata packages", "Client profiles & history", "Clip rating & performance tips", "Copy-ready output"],
@@ -14,7 +14,7 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: "€19.99",
+    price: "€29.99",
     per: "/month",
     description: "For serious Shorts managers",
     features: ["Up to 10 clients", "Everything in Starter", "YouTube performance reports", "Auto-posting to YouTube", "Priority email support"],
@@ -85,6 +85,8 @@ export default function Landing() {
         .cta:disabled{opacity:.6;cursor:not-allowed;transform:none}
         .cta.ol{background:none;border:1px solid #1E2A45;color:#6B7FA3}
         .cta.ol:hover{border-color:#4F6EF7;color:#F0F4FF;transform:none}
+        .login-btn{padding:8px 18px;background:none;border:1px solid #1E2A45;color:#C8D4F0;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
+        .login-btn:hover{border-color:#4F6EF7;color:#4F6EF7}
         @media(max-width:768px){
           .hero-h1{font-size:34px!important;letter-spacing:-.5px!important}
           .plans-g{grid-template-columns:1fr!important}
@@ -98,10 +100,11 @@ export default function Landing() {
       {/* NAV */}
       <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:100,background:"rgba(8,11,20,.92)",backdropFilter:"blur(12px)",borderBottom:"1px solid #1A2340",padding:"0 40px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{fontSize:18,fontWeight:700,letterSpacing:"-.5px"}}>Short<span style={{color:"#4F6EF7"}}>Flow</span></div>
-        <div className="nl" style={{display:"flex",gap:28,alignItems:"center"}}>
+        <div className="nl" style={{display:"flex",gap:16,alignItems:"center"}}>
           <a href="#features" style={{color:"#6B7FA3",fontSize:14,textDecoration:"none"}}>Features</a>
           <a href="#pricing" style={{color:"#6B7FA3",fontSize:14,textDecoration:"none"}}>Pricing</a>
-          <button onClick={()=>router.push("/dashboard")} className="cta" style={{padding:"8px 20px",fontSize:14}}>Open App</button>
+          <button onClick={()=>router.push("/dashboard")} className="login-btn">Log In</button>
+          <button onClick={()=>router.push("/dashboard")} className="cta" style={{padding:"8px 20px",fontSize:14}}>Get Started</button>
         </div>
       </nav>
 
@@ -123,12 +126,11 @@ export default function Landing() {
           <button className="cta ol" onClick={()=>router.push("/dashboard")}>Try the App Free</button>
         </div>
 
-        {/* HERO CARD */}
         <div className="float" style={{marginTop:64,background:"#0A0E1A",border:"1px solid #1E2A45",borderRadius:16,padding:24,textAlign:"left",maxWidth:560,margin:"64px auto 0"}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
             <div style={{width:10,height:10,borderRadius:"50%",background:"#EF4444"}}/><div style={{width:10,height:10,borderRadius:"50%",background:"#F59E0B"}}/><div style={{width:10,height:10,borderRadius:"50%",background:"#10B981"}}/>
             <div style={{flex:1,background:"#111827",borderRadius:4,height:22,marginLeft:8,display:"flex",alignItems:"center",paddingLeft:10}}>
-              <div style={{fontSize:11,color:"#3A4F70"}}>shortflow.app/dashboard</div>
+              <div style={{fontSize:11,color:"#3A4F70"}}>shortflow.net/dashboard</div>
             </div>
           </div>
           {[
@@ -216,7 +218,7 @@ export default function Landing() {
 
       {/* FOOTER */}
       <footer style={{borderTop:"1px solid #1A2340",padding:"24px 40px",textAlign:"center"}}>
-        <div style={{fontSize:14,color:"#3A4F70"}}>Short<span style={{color:"#4F6EF7"}}>Flow</span> — Built for Shorts managers &nbsp;·&nbsp; <a href="/privacy" style={{color:"#3A4F70",textDecoration:"none"}}>Privacy Policy</a></div>
+        <div style={{fontSize:14,color:"#3A4F70"}}>Short<span style={{color:"#4F6EF7"}}>Flow</span> — Built for Shorts managers &nbsp;·&nbsp; <a href="/privacy" style={{color:"#3A4F70",textDecoration:"none"}}>Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms" style={{color:"#3A4F70",textDecoration:"none"}}>Terms of Service</a></div>
       </footer>
     </>
   );
