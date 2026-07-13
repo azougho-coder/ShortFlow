@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useSession, signIn } from "next-auth/react";
 
 const PLANS = [
   {
@@ -31,6 +32,7 @@ const FEATURES = [
 
 export default function Landing() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [loadingPlan, setLoadingPlan] = useState(null);
   const [error, setError] = useState(null);
 
@@ -39,6 +41,13 @@ export default function Landing() {
       router.push("/dashboard");
       return;
     }
+
+    // Not signed in yet — send them to Google login first, then bring them back to pricing
+    if (!session) {
+      signIn("google", { callbackUrl: "/#pricing" });
+      return;
+    }
+
     setLoadingPlan(plan.name);
     setError(null);
     try {
@@ -51,7 +60,7 @@ export default function Landing() {
       if (!res.ok) throw new Error(data.error);
       window.location.href = data.url;
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      setError(err.message || "Something went wrong. Try again.");
       setLoadingPlan(null);
     }
   };
