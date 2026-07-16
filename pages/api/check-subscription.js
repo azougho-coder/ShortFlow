@@ -6,7 +6,6 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const PRICE_TO_PLAN = {
   [process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID]: { name: "starter", maxClients: 2 },
   [process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID]: { name: "pro", maxClients: 10 },
-  [process.env.NEXT_PUBLIC_STRIPE_AGENCY_PRICE_ID]: { name: "agency", maxClients: 999 },
 };
 
 export default async function handler(req, res) {
@@ -16,11 +15,26 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Not authenticated" });
   }
 
-  const email = session.user.email;
+  const email = session.user.email.toLowerCase();
 
-  // Admin bypass — full access for the site owner
-  if (email === process.env.ADMIN_EMAIL) {
+  // Full admin access (Agency tier) — for your own account only
+  const adminEmails = (process.env.ADMIN_EMAIL || "")
+    .split(",")
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (adminEmails.includes(email)) {
     return res.status(200).json({ hasAccess: true, plan: "agency", maxClients: 999, email });
+  }
+
+  // Trial access (Pro tier) — for people testing the product before paying
+  const trialEmails = (process.env.TRIAL_EMAILS || "")
+    .split(",")
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (trialEmails.includes(email)) {
+    return res.status(200).json({ hasAccess: true, plan: "pro", maxClients: 10, email });
   }
 
   try {
