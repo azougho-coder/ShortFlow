@@ -105,13 +105,13 @@ export default function Landing() {
         }
       `}</style>
 
-      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:100,background:"rgba(0,0,0,.85)",backdropFilter:"blur(12px)",borderBottom:"1px solid #161616",padding:"0 40px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:100,background:"rgba(0,0,0,.85)",backdropFilter:"blur(12px)",borderBottom:"1px solid #161616",padding:"0 20px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div className="disp" style={{fontSize:18,fontWeight:700,letterSpacing:"-.5px"}}>Short<span style={{color:"#3EFFA0"}}>Flow</span></div>
-        <div className="nl" style={{display:"flex",gap:20,alignItems:"center"}}>
-          <a href="#features" style={{color:"#999",fontSize:14,textDecoration:"none"}}>Features</a>
-          <a href="#pricing" style={{color:"#999",fontSize:14,textDecoration:"none"}}>Pricing</a>
+        <div style={{display:"flex",gap:12,alignItems:"center"}}>
+          <a href="#features" className="nl" style={{color:"#999",fontSize:14,textDecoration:"none",marginRight:8}}>Features</a>
+          <a href="#pricing" className="nl" style={{color:"#999",fontSize:14,textDecoration:"none",marginRight:8}}>Pricing</a>
           <button onClick={()=>router.push("/dashboard")} className="login-btn">Log In</button>
-          <button onClick={()=>router.push("/dashboard")} className="cta" style={{padding:"8px 20px",fontSize:14}}>Get Started</button>
+          <button onClick={()=>router.push("/dashboard")} className="cta" style={{padding:"8px 16px",fontSize:13}}>Get Started</button>
         </div>
       </nav>
 
