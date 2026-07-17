@@ -420,7 +420,7 @@ export default function Dashboard() {
           @media(max-width:768px){
             .sidebar-hide{display:none!important}
             .content-col{flex-direction:column!important;padding:16px!important}
-            .output-col{width:100%!important;min-width:0!important}
+            .output-col{width:100%!important;min-width:0!important;overflow-y:visible!important;height:auto!important;max-height:none!important}
             .bottom-nav{display:flex!important}
             .header-pad{padding:0 16px!important}
           }
@@ -502,7 +502,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="content-col" style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", gap: 24, paddingBottom: 80 }}>
+            <div className="content-col" style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", gap: 24, paddingBottom: 120 }}>
 
               {view === "generate" && (
                 <>
