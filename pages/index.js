@@ -116,8 +116,8 @@ export default function Landing() {
       </nav>
 
       <section className="hp" style={{padding:"150px 40px 100px",maxWidth:900,margin:"0 auto",textAlign:"center"}}>
-        <div className="mono" style={{display:"inline-flex",alignItems:"center",gap:8,border:"1px solid #2A2A2A",borderRadius:20,padding:"6px 16px",fontSize:12,color:"#ccc",marginBottom:32,letterSpacing:".5px",fontWeight:500}}>
-          <span className="cursor" style={{color:"#3EFFA0"}}>●</span> BUILT BY A SHORTS MANAGER, FOR SHORTS MANAGERS
+        <div style={{display:"inline-flex",alignItems:"center",gap:8,border:"1px solid #2A2A2A",borderRadius:20,padding:"6px 16px",fontSize:13,color:"#3EFFA0",marginBottom:32,letterSpacing:".2px",fontWeight:600,fontFamily:"'Inter',sans-serif"}}>
+          <span className="cursor">●</span> BUILT BY A SHORTS MANAGER, FOR SHORTS MANAGERS
         </div>
         <h1 className="hero-h1" style={{fontSize:58,fontWeight:700,lineHeight:1.08,letterSpacing:"-2px",marginBottom:24}}>
           Manage every client.<br/>
@@ -144,7 +144,7 @@ export default function Landing() {
               {label:"TOP_TITLE",content:<span style={{fontSize:13,color:"#ccc"}}>The Decision That Will Crash 90 Countries' Economies</span>},
             ].map((item,i)=>(
               <div key={i} style={{marginBottom:i<2?16:0}}>
-                <div className="mono" style={{fontSize:10,color:"#777",letterSpacing:"1.5px",marginBottom:6,fontWeight:500}}>{item.label}</div>
+                <div style={{fontSize:11,color:"#3EFFA0",letterSpacing:".5px",marginBottom:6,fontWeight:600,fontFamily:"'Inter',sans-serif"}}>{item.label}</div>
                 {item.content}
               </div>
             ))}
@@ -154,7 +154,7 @@ export default function Landing() {
 
       <section id="features" className="sp" style={{padding:"80px 40px",maxWidth:760,margin:"0 auto"}}>
         <div style={{marginBottom:8}}>
-          <div className="mono" style={{fontSize:12,color:"#888",letterSpacing:"2px",marginBottom:12,fontWeight:600}}>FEATURES</div>
+          <div style={{fontSize:13,color:"#3EFFA0",letterSpacing:"1px",marginBottom:12,fontWeight:700,fontFamily:"'Inter',sans-serif"}}>FEATURES</div>
           <h2 style={{fontSize:32,fontWeight:700,letterSpacing:"-.8px"}}>Everything you need to scale</h2>
         </div>
         {FEATURES.map((f)=>(
@@ -179,7 +179,7 @@ export default function Landing() {
 
       <section id="pricing" className="sp" style={{padding:"80px 40px",maxWidth:1000,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:48}}>
-          <div className="mono" style={{fontSize:12,color:"#888",letterSpacing:"2px",marginBottom:12,fontWeight:600}}>PRICING</div>
+          <div style={{fontSize:13,color:"#3EFFA0",letterSpacing:"1px",marginBottom:12,fontWeight:700,fontFamily:"'Inter',sans-serif"}}>PRICING</div>
           <h2 style={{fontSize:32,fontWeight:700,letterSpacing:"-.8px",marginBottom:12}}>Simple, transparent pricing</h2>
           <p style={{fontSize:15,color:"#999"}}>Cancel anytime. No hidden fees.</p>
         </div>
