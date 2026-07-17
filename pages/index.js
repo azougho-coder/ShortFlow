@@ -6,7 +6,7 @@ import { useSession, signIn } from "next-auth/react";
 const PLANS = [
   {
     name: "Starter",
-    price: "€19.99",
+    price: "€14.99",
     per: "/month",
     description: "Perfect for getting your first clients",
     features: ["Up to 2 clients", "Unlimited metadata packages", "Client profiles & history", "Clip rating & performance tips", "Copy-ready output"],
@@ -15,7 +15,7 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: "€29.99",
+    price: "€19.99",
     per: "/month",
     description: "For serious Shorts managers",
     features: ["Up to 10 clients", "Everything in Starter", "YouTube performance reports", "Auto-posting to YouTube", "Priority email support"],
