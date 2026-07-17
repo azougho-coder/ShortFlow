@@ -430,7 +430,7 @@ export default function Dashboard() {
           .bnav-icon{font-size:16px}
         `}</style>
 
-        <div style={{ display: "flex", height: "100vh", fontFamily: "'Inter', system-ui, sans-serif", background: "#000", color: "#fff", overflow: "hidden" }}>
+        <div style={{ display: "flex", height: "100vh", minHeight: "100dvh", fontFamily: "'Inter', system-ui, sans-serif", background: "#000", color: "#fff", overflow: "hidden" }}>
 
           <div className="sidebar-hide" style={{ width: 230, minWidth: 230, background: "#0A0A0A", borderRight: "1px solid #1A1A1A", display: "flex", flexDirection: "column", padding: "20px 0" }}>
             <div style={{ padding: "0 20px 24px" }}>
@@ -502,7 +502,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="content-col" style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", gap: 24, paddingBottom: 120 }}>
+            <div className="content-col" style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", gap: 24, paddingBottom: 120, WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
 
               {view === "generate" && (
                 <>
