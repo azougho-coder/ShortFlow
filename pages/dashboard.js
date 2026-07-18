@@ -167,6 +167,14 @@ const DEFAULT_CLIENTS = [
   { id: 1, name: "Demo Client", niche: "Finance & Entrepreneurship", tone: "Motivational, punchy, direct", notes: "Replace with your real client" },
 ];
 
+const INSIGHT_QUESTIONS = [
+  { key: "best_pattern", label: "What's my best performing pattern?" },
+  { key: "underperforming", label: "What's underperforming and why?" },
+  { key: "best_time", label: "When should I be posting?" },
+  { key: "month_comparison", label: "How does this month compare to last?" },
+  { key: "next_topic", label: "What topic should I try next?" },
+];
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const [subscription, setSubscription] = useState(undefined);
@@ -186,6 +194,9 @@ export default function Dashboard() {
   const [ytStats, setYtStats] = useState(null);
   const [ytLoading, setYtLoading] = useState(false);
   const [ytError, setYtError] = useState(null);
+  const [insightAnswer, setInsightAnswer] = useState(null);
+  const [insightLoading, setInsightLoading] = useState(null);
+  const [insightError, setInsightError] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [selectedTitleIndex, setSelectedTitleIndex] = useState(0);
   const [editableDescription, setEditableDescription] = useState("");
@@ -299,6 +310,26 @@ export default function Dashboard() {
   const handleDisconnectYoutube = async (clientId) => {
     await fetch("/api/youtube/disconnect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clientId }) });
     setYtStats(null);
+  };
+
+  const askInsight = async (questionKey) => {
+    setInsightLoading(questionKey);
+    setInsightError(null);
+    setInsightAnswer(null);
+    try {
+      const res = await fetch("/api/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: selectedId, questionKey }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to get answer");
+      setInsightAnswer({ questionKey, text: data.answer });
+    } catch (err) {
+      setInsightError(err.message);
+    } finally {
+      setInsightLoading(null);
+    }
   };
 
   const uploadToYoutube = async () => {
@@ -711,7 +742,7 @@ export default function Dashboard() {
                   ) : (
                     <>
                       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-                        <select className="fi" style={{ maxWidth: 240, cursor: "pointer" }} value={selectedId} onChange={(e) => { setSelectedId(Number(e.target.value)); setYtStats(null); }}>
+                        <select className="fi" style={{ maxWidth: 240, cursor: "pointer" }} value={selectedId} onChange={(e) => { setSelectedId(Number(e.target.value)); setYtStats(null); setInsightAnswer(null); setInsightError(null); }}>
                           {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
                         {!ytStats && <button onClick={() => handleConnectYoutube(selectedId)} style={{ padding: "10px 20px", background: "#3EFFA0", color: "#000", border: "none", borderRadius: 6, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>Connect YouTube</button>}
@@ -779,6 +810,49 @@ export default function Dashboard() {
                               <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ color: "#3EFFA0", fontSize: 11, textDecoration: "none", flexShrink: 0 }}>View →</a>
                             </div>
                           ))}
+
+                          {/* AI INSIGHTS */}
+                          <div style={{ marginTop: 28 }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: "#666", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>Ask About Your Channel</div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+                              {INSIGHT_QUESTIONS.map((q) => (
+                                <button
+                                  key={q.key}
+                                  onClick={() => askInsight(q.key)}
+                                  disabled={insightLoading !== null}
+                                  style={{
+                                    padding: "9px 14px",
+                                    background: insightAnswer?.questionKey === q.key ? "#001F0F" : "#0A0A0A",
+                                    border: `1px solid ${insightAnswer?.questionKey === q.key ? "#3EFFA0" : "#1A1A1A"}`,
+                                    borderRadius: 20,
+                                    color: insightAnswer?.questionKey === q.key ? "#3EFFA0" : "#ccc",
+                                    fontSize: 13,
+                                    cursor: insightLoading !== null ? "not-allowed" : "pointer",
+                                    opacity: insightLoading !== null && insightLoading !== q.key ? 0.4 : 1,
+                                    fontFamily: "inherit",
+                                    transition: "all 0.15s",
+                                  }}
+                                >
+                                  {insightLoading === q.key ? <span className="gp">Thinking...</span> : q.label}
+                                </button>
+                              ))}
+                            </div>
+
+                            {insightError && (
+                              <div style={{ background: "#1F0A0A", border: "1px solid #3A1515", borderRadius: 5, padding: "12px 16px", color: "#FF5C5C", fontSize: 13, marginBottom: 12 }}>
+                                {insightError}
+                              </div>
+                            )}
+
+                            {insightAnswer && (
+                              <div style={{ background: "#001F0F", border: "1px solid #1C3A1C", borderRadius: 6, padding: 18 }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: "#3EFFA0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>
+                                  {INSIGHT_QUESTIONS.find(q => q.key === insightAnswer.questionKey)?.label}
+                                </div>
+                                <div style={{ fontSize: 14, color: "#ddd", lineHeight: 1.7 }}>{insightAnswer.text}</div>
+                              </div>
+                            )}
+                          </div>
                         </>
                       )}
                     </>
