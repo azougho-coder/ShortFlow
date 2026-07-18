@@ -7,6 +7,9 @@ const QUESTIONS = {
   best_time: "When should I be posting? Based on the publish dates and performance of these Shorts, suggest what timing patterns seem to correlate with better performance.",
   month_comparison: "How does this month compare to last month? Compare the performance of Shorts published in the last 30 days versus the 30 days before that.",
   next_topic: "What topic should I try next? Based on what's working, suggest a specific new angle or topic direction worth testing.",
+  title_analysis: "Which titles or hooks are working best? Compare the wording, length, and style of the top performing titles versus the weaker ones and identify what makes the difference.",
+  engagement: "How's my engagement compared to my views? Look at the ratio of likes and comments to views across these Shorts and flag anything unusual — either surprisingly high or low engagement relative to views.",
+  summary: "Give me a quick overall summary of how this channel is doing right now. Cover the general trend, the standout video, and one clear takeaway.",
 };
 
 async function refreshAccessToken(refreshToken) {
