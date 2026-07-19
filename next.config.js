@@ -1,20 +1,3 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [
-          {
-            type: "host",
-            value: "www.shortflow.net",
-          },
-        ],
-        destination: "https://shortflow.net/:path*",
-        permanent: true,
-      },
-    ];
-  },
-};
-
+const nextConfig = {};
 module.exports = nextConfig;
