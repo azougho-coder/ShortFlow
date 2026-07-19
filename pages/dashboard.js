@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 const RATING = {
   FIRE: { color: "#F5A623", bg: "#1F1600", label: "FIRE" },
@@ -180,6 +181,7 @@ const INSIGHT_QUESTIONS = [
 
 export default function Dashboard() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [subscription, setSubscription] = useState(undefined);
   const [clients, setClients] = useState(DEFAULT_CLIENTS);
   const [selectedId, setSelectedId] = useState(1);
@@ -418,6 +420,7 @@ export default function Dashboard() {
     ["history", "📋", "History"],
     ["performance", "📈", "Performance"],
     ["insights", "💬", "Insights"],
+    ["help", "❓", "Help"],
   ];
 
   return (
@@ -475,7 +478,7 @@ export default function Dashboard() {
 
             <div style={{ padding: "0 12px", marginBottom: 24 }}>
               {NAV_ITEMS.map(([id, icon, label]) => (
-                <button key={id} className={`nb ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
+                <button key={id} className={`nb ${view === id ? "a" : ""}`} onClick={() => { if (id === "help") { router.push("/help"); return; } setView(id); setHistoryDetail(null); }}>
                   <span style={{ width: 18, textAlign: "center" }}>{icon}</span>{label}
                 </button>
               ))}
@@ -900,7 +903,7 @@ export default function Dashboard() {
 
             <div className="bottom-nav">
               {NAV_ITEMS.map(([id, icon, label]) => (
-                <button key={id} className={`bnav-btn ${view === id ? "a" : ""}`} onClick={() => { setView(id); setHistoryDetail(null); }}>
+                <button key={id} className={`bnav-btn ${view === id ? "a" : ""}`} onClick={() => { if (id === "help") { router.push("/help"); return; } setView(id); setHistoryDetail(null); }}>
                   <span className="bnav-icon">{icon}</span>{label}
                 </button>
               ))}
