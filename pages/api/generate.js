@@ -1,4 +1,6 @@
-const SYSTEM_PROMPT = `You are an expert YouTube Shorts metadata specialist for a Shorts management agency. Given a video transcript, client profile, and optionally their YouTube performance data, generate a complete high-performing metadata package.
+const SYSTEM_PROMPT = `You are an expert YouTube Shorts metadata specialist for a Shorts management agency. Given a video transcript OR a plain description of what the video is about, plus client profile and optionally their YouTube performance data, generate a complete high-performing metadata package.
+
+If given a full transcript, extract the most compelling angle from it. If given only a plain description, work from that description directly to infer what the video covers.
 
 When performance data is provided, use it to identify patterns — what hook styles, title formats, and topics perform best for this specific channel — and apply those patterns to the new package.
 
@@ -16,7 +18,6 @@ async function getYouTubeStats(userEmail, clientId) {
 
     const ytData = typeof raw === "string" ? JSON.parse(raw) : raw;
 
-    // Refresh token if needed
     let accessToken = ytData.accessToken;
     if (ytData.refreshToken) {
       const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -36,7 +37,6 @@ async function getYouTubeStats(userEmail, clientId) {
       }
     }
 
-    // Get recent Shorts
     const searchRes = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${ytData.channelId}&type=video&videoDuration=short&order=date&maxResults=20`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -82,7 +82,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "ANTHROPIC_API_KEY not set" });
   }
 
-  // Try to get YouTube performance data if available
   let performanceContext = "";
   if (userEmail && client.id) {
     const ytStats = await getYouTubeStats(userEmail, client.id);
@@ -103,7 +102,7 @@ Name: ${client.name}
 Niche: ${client.niche}
 Tone: ${client.tone}${client.notes ? `\nNotes: ${client.notes}` : ""}${performanceContext}
 
-TRANSCRIPT:
+VIDEO DESCRIPTION OR TRANSCRIPT:
 ${transcript}
 
 Return ONLY the JSON object. Nothing else.`;
