@@ -550,8 +550,8 @@ export default function Dashboard() {
                       </select>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: "#666", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Transcript</div>
-                      <textarea className="fi" style={{ width: "100%", minHeight: 220, resize: "vertical", lineHeight: 1.65 }} value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder="Paste the clip transcript here..." />
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#666", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Video Description or Transcript</div>
+                      <textarea className="fi" style={{ width: "100%", minHeight: 220, resize: "vertical", lineHeight: 1.65 }} value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder="Describe what your video is about, or paste the full transcript..." />
                     </div>
                     {error && <div style={{ background: "#1F0A0A", border: "1px solid #3A1515", borderRadius: 5, padding: "11px 16px", color: "#FF5C5C", fontSize: 13 }}>{error}</div>}
                     <button className="gb" onClick={handleGenerate} disabled={generating}>
