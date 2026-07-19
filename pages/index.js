@@ -6,7 +6,7 @@ import { useSession, signIn } from "next-auth/react";
 const PLANS = [
   {
     name: "Starter",
-    price: "€14.99",
+    price: "€19.99",
     per: "/month",
     description: "Perfect for getting your first clients",
     features: ["Up to 2 clients", "Unlimited metadata packages", "Client profiles & history", "Clip rating & performance tips", "Copy-ready output"],
@@ -15,7 +15,7 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: "€19.99",
+    price: "€29.99",
     per: "/month",
     description: "For serious Shorts managers",
     features: ["Up to 10 clients", "Everything in Starter", "YouTube performance reports", "Auto-posting to YouTube", "Priority email support"],
@@ -219,7 +219,7 @@ export default function Landing() {
       </section>
 
       <footer style={{borderTop:"1px solid #161616",padding:"24px 40px",textAlign:"center"}}>
-        <div className="mono" style={{fontSize:13,color:"#777"}}>Short<span style={{color:"#3EFFA0"}}>Flow</span> — Built for Shorts managers &nbsp;·&nbsp; <a href="/privacy" style={{color:"#555",textDecoration:"none"}}>Privacy</a> &nbsp;·&nbsp; <a href="/terms" style={{color:"#555",textDecoration:"none"}}>Terms</a></div>
+        <div className="mono" style={{fontSize:13,color:"#777"}}>Short<span style={{color:"#3EFFA0"}}>Flow</span> — Built for Shorts managers &nbsp;·&nbsp; <a href="/help" style={{color:"#555",textDecoration:"none"}}>Help</a> &nbsp;·&nbsp; <a href="/privacy" style={{color:"#555",textDecoration:"none"}}>Privacy</a> &nbsp;·&nbsp; <a href="/terms" style={{color:"#555",textDecoration:"none"}}>Terms</a></div>
       </footer>
     </>
   );
