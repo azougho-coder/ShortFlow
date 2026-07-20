@@ -19,10 +19,6 @@ const SECTIONS = [
         caption: "Click \"Connect YouTube Channel\" to link your own channel or a client's. This way, the AI constantly learns from your real performance data — views, likes, comments — and uses it to generate smarter packages over time.",
       },
       {
-        img: "/screenshots/performance-2.png",
-        caption: "You'll see this warning from Google — that's normal. ShortFlow is still going through official verification, which takes a few weeks for new apps. Click Advanced, then \"Go to ShortFlow\" to continue.",
-      },
-      {
         img: "/screenshots/performance-3.png",
         caption: "Once connected, you'll see the channel's stats and recent Shorts right here — your own or a client's. This isn't just another analytics dashboard — the AI is actively learning from this data to improve every package it generates for you.",
       },
